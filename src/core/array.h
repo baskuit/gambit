@@ -51,13 +51,13 @@ protected:
 public:
   class iterator {
   private:
-    const Array &m_array;
+    Array &m_array;
     int m_index;
   public:
-    iterator(const Array &p_array, int p_index)
+    iterator(Array &p_array, int p_index)
       : m_array(p_array), m_index(p_index)  { }
-    T &operator*() const { return m_array[m_index]; }
-    T &operator->() const { return m_array[m_index]; }
+    T &operator*()  { return m_array[m_index]; }
+    T &operator->()  { return m_array[m_index]; }
     iterator &operator++()  { m_index++; return *this; }
     bool operator==(const iterator &it) const
     { return (&m_array == &it.m_array) && (m_index == it.m_index); }
@@ -154,9 +154,17 @@ public:
   int Last() const { return maxdex; }
 
   /// Return a forward iterator starting at the beginning of the array
-  const_iterator begin() const { return const_iterator(*this, mindex); }
+  iterator begin()  { return iterator(*this, mindex); }
   /// Return a forward iterator past the end of the array
+  iterator end()    { return iterator(*this, maxdex + 1); }
+  /// Return a const forward iterator starting at the beginning of the array
+  const_iterator begin() const { return const_iterator(*this, mindex); }
+  /// Return a const forward iterator past the end of the array
   const_iterator end() const   { return const_iterator(*this, maxdex + 1); }
+  /// Return a const forward iterator starting at the beginning of the array
+  const_iterator cbegin() const { return const_iterator(*this, mindex); }
+  /// Return a const forward iterator past the end of the array
+  const_iterator cend() const   { return const_iterator(*this, maxdex + 1); }
 
   /// Access the index'th entry in the array
   const T &operator[](int index) const 
@@ -187,14 +195,6 @@ public:
 
   /// @name Modifying the contents of the array
   //@{
-  /// \brief Append a new element to the array.
-  ///
-  /// Append a new element to the array, and return the index at which the
-  /// element can be found.  Note that this index is guaranteed to be the
-  /// last (highest) index in the array.
-  int Append(const T &t)
-  { return InsertAt(t, this->maxdex + 1); }
-
   /// \brief Insert a new element into the array at a given index.
   ///
   /// Insert a new element into the array at a given index.  If the index is

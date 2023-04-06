@@ -34,11 +34,11 @@ namespace Nash {
 /// 
 class EnumPureStrategySolver : public StrategySolver<Rational> {
 public:
-   EnumPureStrategySolver(shared_ptr<StrategyProfileRenderer<Rational> > p_onEquilibrium = 0) 
+   EnumPureStrategySolver(std::shared_ptr<StrategyProfileRenderer<Rational> > p_onEquilibrium = nullptr)
     : StrategySolver<Rational>(p_onEquilibrium) { }
-  virtual ~EnumPureStrategySolver()  { }
+  ~EnumPureStrategySolver() override = default;
 
-  List<MixedStrategyProfile<Rational> > Solve(const Game &p_game) const;
+  List<MixedStrategyProfile<Rational> > Solve(const Game &p_game) const override;
 };
 
 inline List<MixedStrategyProfile<Rational> >
@@ -52,7 +52,7 @@ EnumPureStrategySolver::Solve(const Game &p_game) const
     if ((*citer)->IsNash()) {
       MixedStrategyProfile<Rational> profile = (*citer)->ToMixedStrategyProfile();
       m_onEquilibrium->Render(profile);
-      solutions.Append(profile);
+      solutions.push_back(profile);
     }
   }
   return solutions;
@@ -67,11 +67,11 @@ EnumPureStrategySolver::Solve(const Game &p_game) const
 ///
 class EnumPureAgentSolver : public BehavSolver<Rational> {
 public:
-  EnumPureAgentSolver(shared_ptr<StrategyProfileRenderer<Rational> > p_onEquilibrium = 0)
+  EnumPureAgentSolver(std::shared_ptr<StrategyProfileRenderer<Rational> > p_onEquilibrium = nullptr)
     : BehavSolver<Rational>(p_onEquilibrium) { }
-  virtual ~EnumPureAgentSolver()  { }
+  ~EnumPureAgentSolver() override = default;
 
-  List<MixedBehaviorProfile<Rational> > Solve(const BehaviorSupportProfile &) const;
+  List<MixedBehaviorProfile<Rational> > Solve(const BehaviorSupportProfile &) const override;
 };
 
 inline List<MixedBehaviorProfile<Rational> > 
@@ -82,7 +82,7 @@ EnumPureAgentSolver::Solve(const BehaviorSupportProfile &p_support) const
     if (citer->IsAgentNash()) {
       MixedBehaviorProfile<Rational> profile = citer->ToMixedBehaviorProfile();
       m_onEquilibrium->Render(profile);
-      solutions.Append(profile);
+      solutions.push_back(profile);
     }
   }
   return solutions;

@@ -20,7 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 
-#include <cstdlib>
 #include "gambit.h"
 #include "ludecomp.h"
 #include "tableau.h"
@@ -135,7 +134,7 @@ void LUdecomp<T>::update( int col, int matcol )
     tab.GetColumn( matcol, scratch1); 
     solve( scratch1, scratch1 );
     if ( scratch1[col] == (T) 0 ) throw BadPivot();
-    E.Append( EtaMatrix<T>( col, scratch1 ) );
+    E.push_back( EtaMatrix<T>( col, scratch1 ) );
     
     total_operations += iterations * m + 2 * m * m;    
   }
@@ -170,7 +169,7 @@ void LUdecomp<T>::solveT( const Vector<T> &c, Vector<T> &y ) const
   if ( c.First() != basis.First() || c.Last() != basis.Last()) throw DimensionException();
 
   y = c;
-  if ( basis.IsIdent() != true ) {
+  if (!basis.IsIdent()) {
     BTransE( y );
     if ( parent != NULL ) 
       (*parent).solveT( y, y );
@@ -189,7 +188,7 @@ void LUdecomp<T>::solve( const Vector<T> &a, Vector<T> &d ) const
   if ( a.First() != basis.First() || a.Last() != basis.Last()) throw DimensionException();
   
   d = a;
-  if ( basis.IsIdent() != true ) {
+  if (!basis.IsIdent()) {
     if ( parent != NULL ) 
       (*parent).solve(a,d);
     else {
@@ -234,7 +233,7 @@ void LUdecomp<T>::FactorBasis()
 	pivVal = B( j, i );
       }
     }
-    P.Append(piv);
+    P.push_back(piv);
     B.SwitchRows(i,piv);
     
     scratch2 = (T) 0;
@@ -242,13 +241,13 @@ void LUdecomp<T>::FactorBasis()
     for ( j = i+1; j <= B.MaxRow(); j++ ) {
       scratch2[j] =  - B(j, i) / B(i,i);
     }
-    L.Append( EtaMatrix<T>(i, scratch2) );
+    L.push_back( EtaMatrix<T>(i, scratch2) );
     GaussElem(B, i, i);
 
   }
   for ( j = B.MinCol(); j <= B.MaxCol(); j++ ) {
     B.GetColumn( j, scratch2 );
-    U.Append( EtaMatrix<T>( j, scratch2 ));
+    U.push_back( EtaMatrix<T>( j, scratch2 ));
   }
 }
 
@@ -443,7 +442,7 @@ bool LUdecomp<T>::CheckBasis()
   int i;
   bool ret = true;
 
-  for (i = basis.First(); i <= basis.Last() && ret != false; i++)
+  for (i = basis.First(); i <= basis.Last() && ret; i++)
     ret = ret && ( basis.Label(i) == -i );
 
   return ret;

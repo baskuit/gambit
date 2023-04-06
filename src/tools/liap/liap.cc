@@ -22,7 +22,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <cerrno>
 #include <cstdlib>
 #include <getopt.h>
 #include "gambit.h"
@@ -216,9 +215,9 @@ int main(int argc, char *argv[])
       }
 
       for (int i = 1; i <= starts.size(); i++) {
-	shared_ptr<StrategyProfileRenderer<double> > renderer;
-	renderer = new MixedStrategyCSVRenderer<double>(std::cout,
-							numDecimals);
+	std::shared_ptr<StrategyProfileRenderer<double> > renderer(
+      new MixedStrategyCSVRenderer<double>(std::cout, numDecimals)
+    );
 	NashLiapStrategySolver algorithm(maxitsN, verbose, renderer);
 	algorithm.Solve(starts[i]);
       }
@@ -235,9 +234,9 @@ int main(int argc, char *argv[])
       }
 
       for (int i = 1; i <= starts.size(); i++) {
-	shared_ptr<StrategyProfileRenderer<double> > renderer;
-	renderer = new BehavStrategyCSVRenderer<double>(std::cout,
-							numDecimals);
+	std::shared_ptr<StrategyProfileRenderer<double> > renderer(
+      new BehavStrategyCSVRenderer<double>(std::cout, numDecimals)
+    );
 	NashLiapBehavSolver algorithm(maxitsN, verbose, renderer);
 	algorithm.Solve(starts[i]);
       }

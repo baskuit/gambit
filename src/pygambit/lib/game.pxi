@@ -20,8 +20,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 import itertools
-
 from libcpp cimport bool
+
+import numpy as np
+
 from pygambit.lib.error import UndefinedOperationError
 import pygambit.gte
 import pygambit.gameiter
@@ -125,14 +127,18 @@ cdef class Game(object):
     cdef c_Game game
 
     @classmethod
-    def new_tree(cls):
+    def new_tree(cls, title=None):
         cdef Game g
         g = cls()
         g.game = NewTree()
+        if title is not None:
+            g.title = title
+        else:
+            g.title = "Untitled extensive game"
         return g
 
     @classmethod
-    def new_table(cls, dim):
+    def new_table(cls, dim, title=None):
         cdef Game g
         cdef Array[int] *d
         d = new Array[int](len(dim))
@@ -141,20 +147,51 @@ cdef class Game(object):
         g = cls()
         g.game = NewTable(d)
         del d
+        if title is not None:
+            g.title = title
+        else:
+            g.title = "Untitled strategic game"
         return g
 
     @classmethod
-    def from_arrays(cls, *arrays):
+    def from_arrays(cls, *arrays, title=None):
         cdef Game g
+        arrays = [np.array(a) for a in arrays]
         if len(set(a.shape for a in arrays)) > 1:
             raise ValueError("All specified arrays must have the same shape")
         g = Game.new_table(arrays[0].shape)
-        for profile in itertools.product(*(range(arrays[0].shape[i])
-                                         for i in range(len(g.players)))):
+        for profile in itertools.product(
+                *(range(arrays[0].shape[i]) for i in range(len(g.players)))
+        ):
             for pl in range(len(g.players)):
                 g[profile][pl] = arrays[pl][profile]
+        if title is not None:
+            g.title = title
+        else:
+            g.title = "Untitled strategic game"
         return g
-        
+
+    @classmethod
+    def from_dict(cls, payoffs, title=None):
+        cdef Game g
+        payoffs = {k: np.array(v) for k, v in payoffs.items()}
+        if len(set(a.shape for a in payoffs.values())) > 1:
+            raise ValueError("All specified arrays must have the same shape")
+        arrays = list(payoffs.values())
+        shape = arrays[0].shape
+        g = Game.new_table(shape)
+        for (player, label) in zip(g.players, payoffs):
+            player.label = label
+        for profile in itertools.product(
+                *(range(shape[i]) for i in range(len(g.players)))
+        ):
+            for (pl, _) in enumerate(arrays):
+                g[profile][pl] = arrays[pl][profile]
+        if title is not None:
+            g.title = title
+        else:
+            g.title = "Untitled strategic game"
+        return g
 
     @classmethod
     def read_game(cls, fn):
@@ -183,6 +220,12 @@ cdef class Game(object):
 
     def __repr__(self):
         return self.write()
+
+    def _repr_html_(self):
+        if self.is_tree:
+            return self.write()
+        else:
+            return self.write('html')
 
     def __richcmp__(Game self, other, whichop):
         if isinstance(other, Game):
@@ -341,19 +384,54 @@ cdef class Game(object):
         return self._get_contingency(*tuple(cont))
 
 
-    def mixed_strategy_profile(self, rational=False):
+    def mixed_strategy_profile(self, data=None, rational=False):
         cdef MixedStrategyProfileDouble mspd
         cdef MixedStrategyProfileRational mspr
         cdef c_Rational dummy_rat
         if not self.is_perfect_recall:
-            raise UndefinedOperationError("Mixed strategies not supported for games with imperfect recall.")
+            raise UndefinedOperationError(
+                "Mixed strategies not supported for games with "
+                "imperfect recall."
+            )
         if not rational:
             mspd = MixedStrategyProfileDouble()
-            mspd.profile = new c_MixedStrategyProfileDouble(self.game.deref().NewMixedStrategyProfile(0.0))
+            mspd.profile = new c_MixedStrategyProfileDouble(
+                self.game.deref().NewMixedStrategyProfile(0.0)
+            )
+            if data is None:
+                return mspd
+            if len(data) != len(self.players):
+                raise ValueError(
+                    "Number of elements does not match number of players"
+                )
+            for (p, d) in zip(self.players, data):
+                if len(p.strategies) != len(d):
+                    raise ValueError(
+                        f"Number of elements does not match number of "
+                        f"strategies for {p}"
+                    )
+                for (s, v) in zip(p.strategies, d):
+                    mspd[s] = float(v)
             return mspd
         else:
             mspr = MixedStrategyProfileRational()
-            mspr.profile = new c_MixedStrategyProfileRational(self.game.deref().NewMixedStrategyProfile(dummy_rat))
+            mspr.profile = new c_MixedStrategyProfileRational(
+                self.game.deref().NewMixedStrategyProfile(dummy_rat)
+            )
+            if data is None:
+                return mspr
+            if len(data) != len(self.players):
+                raise ValueError(
+                    "Number of elements does not match number of players"
+                )
+            for (p, d) in zip(self.players, data):
+                if len(p.strategies) != len(d):
+                    raise ValueError(
+                        f"Number of elements does not match number of "
+                        f"strategies for {p}"
+                    )
+                for (s, v) in zip(p.strategies, d):
+                    mspr[s] = Rational(v)
             return mspr
 
     def mixed_behavior_profile(self, rational=False):

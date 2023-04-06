@@ -23,7 +23,6 @@
 #include <getopt.h>
 #include <iostream>
 #include <fstream>
-#include <cerrno>
 #include "gambit.h"
 #include "solvers/ipa/ipa.h"
 
@@ -120,9 +119,9 @@ int main(int argc, char *argv[])
 
   try {
     Game game = ReadGame(*input_stream);
-    shared_ptr<StrategyProfileRenderer<double> > renderer;
-    renderer = new MixedStrategyCSVRenderer<double>(std::cout,
-						    numDecimals);
+    std::shared_ptr<StrategyProfileRenderer<double> > renderer(
+      new MixedStrategyCSVRenderer<double>(std::cout, numDecimals)
+    );
     NashIPAStrategySolver solver(renderer);
     solver.Solve(game);
     return 0;

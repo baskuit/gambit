@@ -37,10 +37,10 @@ namespace Nash {
 template <class T> class NashLcpStrategySolver : public StrategySolver<T> {
 public:
   NashLcpStrategySolver(int p_stopAfter, int p_maxDepth,
-			Gambit::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium = 0)
+			std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium = 0)
     : StrategySolver<T>(p_onEquilibrium),
       m_stopAfter(p_stopAfter), m_maxDepth(p_maxDepth) { }
-  virtual ~NashLcpStrategySolver()  { }
+  virtual ~NashLcpStrategySolver() = default;
 
   virtual List<MixedStrategyProfile<T> > Solve(const Game &) const;
 
@@ -57,10 +57,10 @@ private:
 template <class T> class NashLcpBehaviorSolver : public BehavSolver<T> {
 public:
   NashLcpBehaviorSolver(int p_stopAfter, int p_maxDepth,
-			Gambit::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium = 0)
+			std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium = 0)
     : BehavSolver<T>(p_onEquilibrium),
       m_stopAfter(p_stopAfter), m_maxDepth(p_maxDepth) { }
-  virtual ~NashLcpBehaviorSolver()  { }
+  virtual ~NashLcpBehaviorSolver() = default;
 
   virtual List<MixedBehaviorProfile<T> > Solve(const BehaviorSupportProfile &) const;
 

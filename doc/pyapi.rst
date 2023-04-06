@@ -450,26 +450,58 @@ Game representations
 
    An object representing a game, in extensive or strategic form.
 
-   .. py:classmethod:: new_tree()
+   .. py:classmethod:: new_tree(title=None)
 
       Creates a new :py:class:`Game`
       consisting of a trivial game tree, with one
       node, which is both root and terminal, and no players.
 
-   .. py:classmethod:: new_table(dim)
+      :param title: The title of the game.  If no title is specified,
+		    "Untitled extensive game" is used.
+      :type title: str
+
+      .. versionadded:: 16.1.0
+	 Added the *title* parameter
+
+   .. py:classmethod:: new_table(dim, title=None)
  
       Creates a new :py:class:`Game` with a strategic
       representation. 
 
       :param dim: A list specifying the number of strategies for each player.
+      :param title: The title of the game.  If no title is specified,
+		    "Untitled strategic game" is used.
+      :type title: str
 
-   .. py:classmethod:: from_arrays(*arrays)
+      .. versionadded:: 16.1.0
+	 Added the *title* parameter
+
+   .. py:classmethod:: from_arrays(*arrays, title=None)
 
       Creates a new :py:class:`Game` with a strategic representation.
-      Each entry in arrays is a numpy array giving the payoff matrix for the
+      Each entry in *arrays* gives the payoff matrix for the
       corresponding player.  The arrays must all have the same shape,
-      and have the same number of dimensions as the total number of players.
+      and have the same number of dimensions as the total number of
+      players.
       
+      :param title: The title of the game.  If no title is specified,
+		    "Untitled strategic game" is used.
+      :type title: str
+
+      .. versionadded:: 16.1.0
+	 Added the *title* parameter
+
+   .. py:classmethod:: from_dict(payoffs, title=None)
+
+      .. versionadded:: 16.1.0
+
+      Creates a new :py:class:`Game` with a strategic representation.
+      Each entry in the dict-like object *payoffs* is a pair
+      giving the label and the payoff matrix for a player.
+      The payoff matrices must all have the same shape,
+      and have the same number of dimensions as the total number of
+      players.
+
    .. py:classmethod:: read_game(fn)
 
       Constructs a game from its serialized representation in a file.
@@ -557,19 +589,27 @@ Game representations
       :param profile: A list of integers specifying the strategy
                       number each player plays in the profile.
 
-   .. py:method:: mixed_strategy_profile(rational=False)
+   .. py:method:: mixed_strategy_profile(data=None, rational=False)
 
       Returns a mixed strategy profile :py:class:`MixedStrategyProfile`
-      over the game, initialized to uniform randomization for each
+      over the game.  If ``data`` is not specified, the mixed
+      strategy profile is initialized to uniform randomization for each
       player over his strategies.  If the game has a tree
       representation, the mixed strategy profile is defined over the
       reduced strategic form representation.
+
+      :param data: A nested list (or compatible type) with the
+		   same dimension as the strategy set of the game,
+		   specifying the probabilities of the strategies.
       
       :param rational: If :literal:`True`, probabilities are
                        represented using rational numbers; otherwise
                        double-precision floating point numbers are
                        used.
 
+      .. versionadded:: 16.1.0
+	 Added the *data* parameter.
+		       
    .. py:method:: mixed_behavior_profile(rational=False)
 
       Returns a behavior strategy profile
@@ -759,8 +799,15 @@ about a plan of play of a game, by one or more players.
 
       Each player's component of the profile is not enforced to sum to
       one, so that, for example, counts rather than probabilities can
-      be expressed.  Calling this on a profile normalizes the
-      distribution over each player's strategies to sum to one.
+      be expressed.  Calling this returns a profile in which the
+      probability distribution over each player's strategies
+      sums to one.
+
+      .. versionchanged:: 16.1.0
+
+	 Returns the normalized profile as a copy and leaves the
+	 original changed.  Previously the original profile
+	 was normalized in place.
       
    .. py:method:: randomize(denom)
 
@@ -854,8 +901,15 @@ about a plan of play of a game, by one or more players.
 
       Each information set's component of the profile is not enforced to sum to
       one, so that, for example, counts rather than probabilities can
-      be expressed.  Calling this on a profile normalizes the
-      distribution over each information set's actions to sum to one.
+      be expressed.  Calling this returns a profile in which the
+      probability distribution over each information set's actions
+      sums to one.
+
+      .. versionchanged:: 16.1.0
+
+	 Returns the normalized profile as a copy and leaves the
+	 original changed.  Previously the original profile
+	 was normalized in place.
       
    .. py:method:: randomize(denom)
 
@@ -1231,9 +1285,18 @@ of game.
    .. py:method:: __setitem__(player, payoff)
 
       Sets the payoff to the ``pl`` th player at the outcome to the
-      specified ``payoff``.  Payoffs may be specified as integers
-      or instances of :py:class:`pygambit.Decimal` or :py:class:`pygambit.Rational`.
+      specified ``payoff``.
+      If ``payoff`` is an ``int`` or `pygambit.Rational`, the
+      payoff is stored as a rational number.
+      If ``payoff`` is a `pygambit.Decimal`, the payoff is stored
+      as a decimal number.
+      Otherwise, the method attempts to construct a
+      `pygambit.Rational` or `pygambit.Decimal` based on the
+      string representation of ``payoff``.
       Players may be specified as in :py:func:`__getitem__`.
+
+      :raises ValueError: If ``payoff`` cannot be interpreted as
+			  a decimal or rational number.
 
 
 Representation of errors and exceptions
@@ -1338,3 +1401,65 @@ Computation of Nash equilibria
    :param bool external: Call the external command-line solver instead
 			 of the internally-linked implementation
 			 
+
+Analysis of quantal response equilibria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~---------
+
+.. py:module:: pygambit.qre
+
+.. py:function:: fit_fixedpoint(data)
+
+   .. versionadded:: 16.1.0
+
+   Use maximum likelihood estimation to find the point on the
+   principal branch of strategic form game closest to `data`.
+   The `data` are expressed as an instance of a mixed strategy
+   profile on the game.  The `data` should typically be expressed
+   as the counts of observations of each strategy.
+
+   :param data: The observed data to use in fitting.
+   :type data: :py:class:`MixedStrategyProfile`
+   :rtype: :py:class:`LogitQREMixedStrategyFitResult`
+
+.. py:function:: fit_empirical(data)
+
+   .. versionadded:: 16.1.0
+
+   Use maximum likelihood estimation to estimate a quantal
+   response equilibrium using the empirical payoff method.
+   The `data` are expressed as an instance of a mixed strategy
+   profile on the game.  The `data` should typically be expressed
+   as the counts of observations of each strategy.
+
+   :param data: The observed data to use in fitting.
+   :type data: :py:class:`MixedStrategyProfile`
+   :rtype: :py:class:`LogitQREMixedStrategyFitResult`
+
+.. py:class:: LogitQREMixedStrategyFitResult
+
+   .. versionadded:: 16.1.0
+
+   The result of estimating a quantal response equilibrium
+   using given data on a game.
+
+   .. py:attribute:: method
+
+   A text string indicating the estimation method used.
+   This can be "fixedpoint" or "empirical".
+
+   .. py:attribute:: profile
+
+   The estimated :py:class:`MixedStrategyProfile`.
+
+   .. py:attribute:: lam
+
+   The estimated value of the precision parameter lambda.
+
+   .. py:attribute:: data
+
+   The data used in the estimation, represented as a
+   :py:class:`MixedStrategyProfile`.
+
+   .. py:attribute:: log_like
+
+   The log of the likelihood function at the estimated profile.

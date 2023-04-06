@@ -143,7 +143,7 @@ GameTableRep::GameTableRep(const Array<int> &dim,
 {
   m_results = Array<GameOutcomeRep *>(Product(dim));
   for (int pl = 1; pl <= dim.Length(); pl++)  {
-    m_players.Append(new GamePlayerRep(this, pl, dim[pl]));
+    m_players.push_back(new GamePlayerRep(this, pl, dim[pl]));
     m_players[pl]->m_label = lexical_cast<std::string>(pl);
     for (int st = 1; st <= m_players[pl]->NumStrategies(); st++) {
       m_players[pl]->m_strategies[st]->SetLabel(lexical_cast<std::string>(st));
@@ -292,9 +292,9 @@ GamePlayer GameTableRep::NewPlayer()
 {
   GamePlayerRep *player = nullptr;
   player = new GamePlayerRep(this, m_players.Length() + 1, 1);
-  m_players.Append(player);
+  m_players.push_back(player);
   for (int outc = 1; outc <= m_outcomes.Last(); outc++) {
-    m_outcomes[outc]->m_payoffs.Append(Number());
+    m_outcomes[outc]->m_payoffs.push_back(Number());
   }
   ClearComputedValues();
   return player;
@@ -387,22 +387,19 @@ void GameTableRep::RebuildTable()
 void GameTableRep::IndexStrategies()
 {
   long offset = 1L;
-  for (GamePlayers::const_iterator player = m_players.begin();
-       player != m_players.end(); ++player)  {
+  for (auto player : m_players)  {
     int st = 1;
-    for (Array<GameStrategyRep *>::const_iterator strategy = player->m_strategies.begin();
-	 strategy != player->m_strategies.end(); ++st, ++strategy) {
+    for (auto strategy : player->m_strategies) {
       strategy->m_number = st;
       strategy->m_offset = (st - 1) * offset;
+      st++;
     }
     offset *= player->m_strategies.size();
   }
 
   int id = 1;
-  for (GamePlayers::const_iterator player = m_players.begin();
-       player != m_players.end(); ++player) {
-    for (Array<GameStrategyRep *>::const_iterator strategy = player->m_strategies.begin();
-	 strategy != player->m_strategies.end(); ++strategy) {
+  for (auto player : m_players) {
+    for (auto strategy : player->m_strategies) {
       strategy->m_id = id++;
     }
   }

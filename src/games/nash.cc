@@ -182,26 +182,26 @@ template class BehavStrategyDetailRenderer<Rational>;
 
 
 template <class T>
-StrategySolver<T>::StrategySolver(shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
+StrategySolver<T>::StrategySolver(std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
   : m_onEquilibrium(p_onEquilibrium)
 {
   if (m_onEquilibrium.get() == nullptr) {
-    m_onEquilibrium = new MixedStrategyNullRenderer<T>();
+    m_onEquilibrium.reset(new MixedStrategyNullRenderer<T>());
   }
 }
 
 template <class T>
-BehavSolver<T>::BehavSolver(shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
+BehavSolver<T>::BehavSolver(std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
   : m_onEquilibrium(p_onEquilibrium)
 {
   if (m_onEquilibrium.get() == nullptr) {
-    m_onEquilibrium = new BehavStrategyNullRenderer<T>();
+    m_onEquilibrium.reset(new BehavStrategyNullRenderer<T>());
   }
 }
 
 template <class T>
-BehavViaStrategySolver<T>::BehavViaStrategySolver(shared_ptr<StrategySolver<T> > p_solver,
-							  shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
+BehavViaStrategySolver<T>::BehavViaStrategySolver(std::shared_ptr<StrategySolver<T> > p_solver,
+							  std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
   : BehavSolver<T>(p_onEquilibrium), m_solver(p_solver)
 { }
 
@@ -218,8 +218,8 @@ BehavViaStrategySolver<T>::Solve(const BehaviorSupportProfile &p_support) const
 
 
 template <class T>
-SubgameBehavSolver<T>::SubgameBehavSolver(shared_ptr<BehavSolver<T> > p_solver,
-						  shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
+SubgameBehavSolver<T>::SubgameBehavSolver(std::shared_ptr<BehavSolver<T> > p_solver,
+						  std::shared_ptr<StrategyProfileRenderer<T> > p_onEquilibrium /* = 0 */)
   : BehavSolver<T>(p_onEquilibrium), m_solver(p_solver)
 { }
 
@@ -234,7 +234,7 @@ namespace {
 void ChildSubgames(const GameNode &p_node, List<GameNode> &p_list)
 {
   if (p_node->IsSubgameRoot()) {
-    p_list.Append(p_node);
+    p_list.push_back(p_node);
   }
   else {
     for (int i = 1; i <= p_node->NumChildren(); 
@@ -271,7 +271,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
   Game efg = p_support.GetGame();
   
   List<DVector<T> > thissolns;
-  thissolns.Append(p_templateSolution);
+  thissolns.push_back(p_templateSolution);
   ((Vector<T> &) thissolns[1]).operator=(T(0));
   
   List<GameNode> subroots;
@@ -280,7 +280,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
   }
   
   List<Array<GameOutcome> > subrootvalues;
-  subrootvalues.Append(Array<GameOutcome>(subroots.Length()));
+  subrootvalues.push_back(Array<GameOutcome>(subroots.Length()));
   
   for (int i = 1; i <= subroots.Length(); i++)  {
     //printf("Looking at subgame %d of %d\n", i, subroots.Length());
@@ -310,9 +310,9 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
 	for (int j = 1; j <= bp.Length(); j++) {
 	  bp[j] += tmp[j];
 	}
-	newsolns.Append(bp);
+	newsolns.push_back(bp);
 	
-	newsubrootvalues.Append(subrootvalues[soln]);
+	newsubrootvalues.push_back(subrootvalues[soln]);
 	newsubrootvalues[newsubrootvalues.Length()][i] = subvalues[subsoln];
       }
     }
@@ -368,7 +368,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
     
     // Put behavior profile in "total" solution here...
     for (int solno = 1; solno <= sol.Length(); solno++)  {
-      solns.Append(thissolns[soln]);
+      solns.push_back(thissolns[soln]);
       
       for (int pl = 1; pl <= subgame->NumPlayers(); pl++)  {
 	GamePlayer subplayer = subgame->GetPlayer(pl);
@@ -404,7 +404,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
 	ov->SetPayoff(pl, lexical_cast<std::string>(subval[pl]));
       }
  
-      values.Append(ov);
+      values.push_back(ov);
     }
     //printf("Finished with scenario %d of %d; total solutions so far = %d\n",
     //soln, thissolns.Length(), solns.Length());
@@ -446,7 +446,7 @@ SubgameBehavSolver<T>::Solve(const BehaviorSupportProfile &p_support) const
 
   List<MixedBehaviorProfile<T> > solutions;
   for (int i = 1; i <= vectors.Length(); i++) {
-    solutions.Append(MixedBehaviorProfile<T>(p_support));
+    solutions.push_back(MixedBehaviorProfile<T>(p_support));
     for (int j = 1; j <= vectors[i].Length(); j++) {
       solutions[i][j] = vectors[i][j];
     }

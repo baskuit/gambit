@@ -70,7 +70,7 @@ EnumMixedStrategySolution<T>::GetCliques() const
   return solution;
 }
 
-template <class T> shared_ptr<EnumMixedStrategySolution<T> >
+template <class T> std::shared_ptr<EnumMixedStrategySolution<T> >
 EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
 {
   if (p_game->NumPlayers() != 2) {
@@ -79,7 +79,7 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
   if (!p_game->IsPerfectRecall()) {
     throw UndefinedException("Computing equilibria of games with imperfect recall is not supported.");
   }
-  shared_ptr<EnumMixedStrategySolution<T> > solution = new EnumMixedStrategySolution<T>(p_game);
+  std::shared_ptr<EnumMixedStrategySolution<T> > solution(new EnumMixedStrategySolution<T>(p_game));
 
   PureStrategyProfile profile = p_game->NewPureStrategyProfile();
 
@@ -167,8 +167,8 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
 	  if (bfs2.count(k)) {
 	    profile[p_game->Players()[2]->Strategies()[k]] = -bfs2[k];
 	  }
-	} 
-	profile.Normalize();
+	}
+	profile = profile.Normalize();
 	solution->m_extremeEquilibria.push_back(profile);
 	this->m_onEquilibrium->Render(profile);
 	  
@@ -186,8 +186,8 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
 	  vert2id[i2] = id2;
 	  solution->m_key1.push_back(profile[p_game->GetPlayer(1)]);
 	}
-	solution->m_node1.Append(vert2id[i2]);
-	solution->m_node2.Append(vert1id[i1]);
+	solution->m_node1.push_back(vert2id[i2]);
+	solution->m_node2.push_back(vert1id[i1]);
       }
     }
   }

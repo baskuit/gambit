@@ -61,12 +61,12 @@ protected:
 public:
   class iterator {
   private:
-    const List &m_list;
+    List &m_list;
     Node *m_node;
   public:
-    iterator(const List &p_list, Node *p_node)
+    iterator(List &p_list, Node *p_node)
       : m_list(p_list), m_node(p_node)  { }
-    T &operator*() const { return *m_node; }
+    T &operator*()  { return m_node->m_data; }
     iterator &operator++()  { m_node = m_node->m_next; return *this; }
     bool operator==(const iterator &it) const
     { return (m_node == it.m_node); }
@@ -81,7 +81,7 @@ public:
   public:
     const_iterator(const List &p_list, Node *p_node)
       : m_list(p_list), m_node(p_node)  { }
-    const T &operator*() const { return *m_node; }
+    const T &operator*() const { return m_node->m_data; }
     const_iterator &operator++()  { m_node = m_node->m_next; return *this; }
     bool operator==(const const_iterator &it) const
     { return (m_node == it.m_node); }
@@ -97,11 +97,19 @@ public:
   
   bool operator==(const List<T> &b) const;
   bool operator!=(const List<T> &b) const;
-  
-  iterator begin()             { return iterator(*this, m_head); }
+
+  /// Return a forward iterator starting at the beginning of the list
+  iterator begin()  { return iterator(*this, m_head); }
+  /// Return a forward iterator past the end of the list
+  iterator end()    { return iterator(*this, 0); }
+  /// Return a const forward iterator starting at the beginning of the list
   const_iterator begin() const { return const_iterator(*this, m_head); }
-  iterator end()               { return iterator(*this, 0); }
+  /// Return a const forward iterator past the end of the list
   const_iterator end() const   { return const_iterator(*this, 0); }
+  /// Return a const forward iterator starting at the beginning of the list
+  const_iterator cbegin() const { return const_iterator(*this, m_head); }
+  /// Return a const forward iterator past the end of the list
+  const_iterator cend() const   { return const_iterator(*this, 0); }
 
   const T &operator[](int) const;
   T &operator[](int);
@@ -109,9 +117,8 @@ public:
   List<T> operator+(const List<T>& b) const;
   List<T>& operator+=(const List<T>& b);
 
-  virtual int Append(const T &);
   int Insert(const T &, int);
-  virtual T Remove(int);
+  T Remove(int);
 
   int Find(const T &) const;
   bool Contains(const T &t) const;
@@ -327,15 +334,10 @@ template <class T> List<T> &List<T>::operator+=(const List<T> &b)
   Node *n = b.m_head;
   
   while (n)  {
-    Append(n->m_data);
+    push_back(n->m_data);
     n = n->m_next;
   }
   return *this;
-}
-
-template <class T> int List<T>::Append(const T &t)
-{
-  return InsertAt(t, m_length + 1);
 }
 
 template <class T> int List<T>::Insert(const T &t, int n)
