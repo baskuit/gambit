@@ -38,7 +38,7 @@ private:
   Array<GamePlayerRep *> m_players;
 
   /// Constructor; takes ownership of the passed pointer
-  GameBagentRep(agg::BAGG *_baggPtr);
+  explicit GameBagentRep(agg::BAGG *_baggPtr);
 
 public:
   /// @name Lifecycle
@@ -81,7 +81,7 @@ public:
   /// @name Players
   //@{
   /// Returns the number of players in the game
-  int NumPlayers() const override { return m_players.Length(); }
+  int NumPlayers() const override { return m_players.size(); }
   /// Returns the pl'th player in the game
   GamePlayer GetPlayer(int pl) const override { return m_players[pl]; }
   /// Returns the set of players in the game
@@ -138,9 +138,9 @@ public:
   { return true; }
   bool IsConstSum() const override { throw UndefinedException(); }
   /// Returns the smallest payoff in any outcome of the game
-  Rational GetMinPayoff(int) const override { return baggPtr->getMinPayoff(); }
+  Rational GetMinPayoff(int) const override { return Rational(baggPtr->getMinPayoff()); }
   /// Returns the largest payoff in any outcome of the game
-  Rational GetMaxPayoff(int) const override { return baggPtr->getMaxPayoff(); }
+  Rational GetMaxPayoff(int) const override { return Rational(baggPtr->getMaxPayoff()); }
   //@}
 
   /// @name Writing data files

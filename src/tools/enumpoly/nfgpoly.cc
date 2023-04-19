@@ -63,7 +63,7 @@ private:
 
   int SaveSolutions(const Gambit::List<Gambit::Vector<double> > &list);
 public:
-  PolEnumModule(const Gambit::StrategySupportProfile &);
+  explicit PolEnumModule(const Gambit::StrategySupportProfile &);
   
   int PolEnum();
   
@@ -73,7 +73,7 @@ public:
   const Gambit::List<Gambit::MixedStrategyProfile<double> > &GetSolutions() const;
   Gambit::Vector<double> SolVarsFromMixedProfile(const Gambit::MixedStrategyProfile<double> &) const;
 
-  const int PolishKnownRoot(Gambit::Vector<double> &) const;
+  int PolishKnownRoot(Gambit::Vector<double> &) const;
 
   Gambit::MixedStrategyProfile<double> ReturnPolishedSolution(const Gambit::Vector<double> &) const;
 
@@ -368,7 +368,7 @@ PolEnumModule::SolVarsFromMixedProfile(const Gambit::MixedStrategyProfile<double
   return answer;
 }
 
-const int PolEnumModule::PolishKnownRoot(Gambit::Vector<double> &point) const
+int PolEnumModule::PolishKnownRoot(Gambit::Vector<double> &point) const
 {
   //DEBUG
   //  gout << "Prior to Polishing point is " << point << ".\n";

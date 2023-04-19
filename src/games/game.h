@@ -73,6 +73,40 @@ public:
   //@}
 };
 
+
+class BaseGameRep {
+protected:
+    int m_refCount;
+
+public:
+    /// @name Lifecycle
+    //@{
+    /// Constructor; initializes reference count
+    BaseGameRep() : m_refCount(0) { }
+    /// Destructor
+    virtual ~BaseGameRep() = default;
+    //@}
+
+    /// @name Validation
+    //@{
+    /// Is the object still valid?
+    bool IsValid() const { return true; }
+    /// Invalidate the object; delete if not referenced elsewhere
+    void Invalidate()
+    { if (!m_refCount) delete this; }
+    //@}
+
+    /// @name Reference counting
+    //@{
+    /// Increment the reference count
+    void IncRef() { m_refCount++; }
+    /// Decrement the reference count; delete if reference count is zero.
+    void DecRef() { if (!--m_refCount) delete this; }
+    /// Returns the reference count
+    int RefCount() const { return m_refCount; }
+    //@}
+};
+
 /// An exception thrown when attempting to dereference an invalidated object 
 class InvalidObjectException : public Exception {
 public:
@@ -170,7 +204,7 @@ class StrategySupportProfile;
 class UndefinedException : public Exception {
 public:
   UndefinedException() : Exception("Undefined operation on game") { }
-  UndefinedException(const std::string &s) : Exception(s) { }
+  explicit UndefinedException(const std::string &s) : Exception(s) { }
   ~UndefinedException() noexcept override = default;
 };
 
@@ -186,7 +220,7 @@ public:
 class InvalidFileException : public Exception {
 public:
   InvalidFileException() : Exception("File not in a recognized format") { }
-  InvalidFileException(const std::string &s) : Exception(s) { } 
+  explicit InvalidFileException(const std::string &s) : Exception(s) { }
   ~InvalidFileException() noexcept override = default;
 };
 
@@ -358,7 +392,7 @@ private:
   /// @name Lifecycle
   //@{
   /// Creates a new strategy for the given player.
-  GameStrategyRep(GamePlayerRep *p_player)
+  explicit GameStrategyRep(GamePlayerRep *p_player)
     : m_number(0), m_id(0), m_player(p_player), m_offset(0L), m_unrestricted(nullptr) { }
   //@}
 
@@ -434,7 +468,7 @@ public:
   /// @name Information sets
   //@{
   /// Returns the number of information sets at which the player makes a choice
-  int NumInfosets() const { return m_infosets.Length(); }
+  int NumInfosets() const { return m_infosets.size(); }
   /// Returns the p_index'th information set
   GameInfoset GetInfoset(int p_index) const;
 
@@ -527,7 +561,7 @@ protected:
   Array<GameStrategy> m_profile;
 
   /// Construct a new strategy profile
-  PureStrategyProfileRep(const Game &p_game);
+  explicit PureStrategyProfileRep(const Game &p_game);
 
   /// Create a copy of the strategy profile.
   /// Caller is responsible for memory management of the created object.
@@ -588,7 +622,7 @@ private:
 
 public:
   PureStrategyProfile(const PureStrategyProfile &r) : rep(r.rep->Copy())  { }
-  PureStrategyProfile(PureStrategyProfileRep *p_rep) : rep(p_rep) { }
+  explicit PureStrategyProfile(PureStrategyProfileRep *p_rep) : rep(p_rep) { }
   ~PureStrategyProfile() { delete rep; }
 
   PureStrategyProfile &operator=(const PureStrategyProfile &r) 
@@ -601,7 +635,7 @@ public:
     }
 
   PureStrategyProfileRep *operator->() const { return rep; }
-  operator PureStrategyProfileRep *() const { return rep; }
+  explicit operator PureStrategyProfileRep *() const { return rep; }
 };
     
 
@@ -617,7 +651,7 @@ public:
   /// @name Lifecycle
   //@{
   /// Construct a new behavior profile on the specified game
-  PureBehaviorProfile(Game);
+  explicit PureBehaviorProfile(Game);
 
   /// @name Data access and manipulation
   //@{
@@ -647,7 +681,7 @@ public:
 
 
 /// This is the class for representing an arbitrary finite game.
-class GameRep : public GameObject {
+class GameRep : public BaseGameRep {
   friend class GameTreeInfosetRep;
   friend class GamePlayerRep;
   friend class GameTreeNodeRep;
@@ -821,7 +855,7 @@ inline GamePlayer GameStrategyRep::GetPlayer() const { return m_player; }
 
 inline Game GamePlayerRep::GetGame() const { return m_game; }
 inline int GamePlayerRep::NumStrategies() const 
-{ m_game->BuildComputedValues(); return m_strategies.Length(); }
+{ m_game->BuildComputedValues(); return m_strategies.size(); }
 inline GameStrategy GamePlayerRep::GetStrategy(int st) const 
 { m_game->BuildComputedValues(); return m_strategies[st]; }
 inline const GameStrategyArray &GamePlayerRep::Strategies() const

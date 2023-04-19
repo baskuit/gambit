@@ -173,12 +173,12 @@ int main(int argc, char *argv[])
   try {
     Game game = ReadGame(*input_stream);
     List<MixedStrategyProfile<Rational> > starts;
-    if (startFile != "") {
+    if (!startFile.empty()) {
       std::ifstream startPoints(startFile.c_str());
       starts = ReadProfiles(game, startPoints);
     }
     else if (useRandom) {
-      starts = RandomProfiles(game, stopAfter, randDenom);
+      starts = RandomProfiles(game, stopAfter, Rational(randDenom));
     }
     else {
       starts.push_back(game->NewMixedStrategyProfile(Rational(0)));

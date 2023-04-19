@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+from libcpp.memory cimport shared_ptr, make_shared
+
 cdef extern from "solvers/enumpure/enumpure.h":
     cdef cppclass c_NashEnumPureStrategySolver "EnumPureStrategySolver":
         c_NashEnumPureStrategySolver()
@@ -27,9 +29,9 @@ cdef extern from "solvers/enumpure/enumpure.h":
 
     cdef cppclass c_NashEnumPureAgentSolver "EnumPureAgentSolver":
         c_NashEnumPureAgentSolver()
-        c_List[c_MixedBehaviorProfileRational] Solve(c_Game) except +RuntimeError
+        c_List[c_MixedBehaviorProfileRational] Solve(c_BehaviorSupportProfile) except +RuntimeError
 
-cdef class EnumPureStrategySolver(object):
+cdef class EnumPureStrategySolver:
     cdef c_NashEnumPureStrategySolver *alg
 
     def __cinit__(self):
@@ -47,7 +49,7 @@ cdef class EnumPureStrategySolver(object):
             ret.append(p)
         return ret
 
-cdef class EnumPureAgentSolver(object):
+cdef class EnumPureAgentSolver:
     cdef c_NashEnumPureAgentSolver *alg
 
     def __cinit__(self, p_stopAfter=0, p_maxDepth=0):
@@ -57,7 +59,9 @@ cdef class EnumPureAgentSolver(object):
     def solve(self, Game game):
         cdef c_List[c_MixedBehaviorProfileRational] solns
         cdef MixedBehaviorProfileRational p
-        solns = self.alg.Solve(game.game)
+        cdef shared_ptr[c_BehaviorSupportProfile] profile
+        profile = make_shared[c_BehaviorSupportProfile](game.game)
+        solns = self.alg.Solve(deref(profile))
         ret = [ ]
         for i in xrange(solns.Length()):
             p = MixedBehaviorProfileRational()
@@ -78,7 +82,7 @@ cdef extern from "solvers/enummixed/enummixed.h":
         c_NashEnumMixedLrsStrategySolver()
         c_List[c_MixedStrategyProfileRational] Solve(c_Game) except +RuntimeError
 
-cdef class EnumMixedStrategySolverDouble(object):
+cdef class EnumMixedStrategySolverDouble:
     cdef c_NashEnumMixedStrategySolverDouble *alg
 
     def __cinit__(self):
@@ -96,7 +100,7 @@ cdef class EnumMixedStrategySolverDouble(object):
             ret.append(p)
         return ret
 
-cdef class EnumMixedStrategySolverRational(object):
+cdef class EnumMixedStrategySolverRational:
     cdef c_NashEnumMixedStrategySolverRational *alg
 
     def __cinit__(self):
@@ -114,7 +118,7 @@ cdef class EnumMixedStrategySolverRational(object):
             ret.append(p)
         return ret
 
-cdef class EnumMixedLrsStrategySolver(object):
+cdef class EnumMixedLrsStrategySolver:
     cdef c_NashEnumMixedLrsStrategySolver *alg
 
     def __cinit__(self):
@@ -143,14 +147,14 @@ cdef extern from "solvers/lcp/lcp.h":
 
     cdef cppclass c_NashLcpBehaviorSolverDouble "NashLcpBehaviorSolver<double>":
         c_NashLcpBehaviorSolverDouble(int, int)
-        c_List[c_MixedBehaviorProfileDouble] Solve(c_Game) except +RuntimeError
+        c_List[c_MixedBehaviorProfileDouble] Solve(c_BehaviorSupportProfile) except +RuntimeError
 
     cdef cppclass c_NashLcpBehaviorSolverRational "NashLcpBehaviorSolver<Rational>":
         c_NashLcpBehaviorSolverRational(int, int)
-        c_List[c_MixedBehaviorProfileRational] Solve(c_Game) except +RuntimeError
+        c_List[c_MixedBehaviorProfileRational] Solve(c_BehaviorSupportProfile) except +RuntimeError
 
 
-cdef class LCPBehaviorSolverDouble(object):
+cdef class LCPBehaviorSolverDouble:
     cdef c_NashLcpBehaviorSolverDouble *alg
 
     def __cinit__(self, p_stopAfter=0, p_maxDepth=0):
@@ -160,7 +164,9 @@ cdef class LCPBehaviorSolverDouble(object):
     def solve(self, Game game):
         cdef c_List[c_MixedBehaviorProfileDouble] solns
         cdef MixedBehaviorProfileDouble p
-        solns = self.alg.Solve(game.game)
+        cdef shared_ptr[c_BehaviorSupportProfile] profile
+        profile = make_shared[c_BehaviorSupportProfile](game.game)
+        solns = self.alg.Solve(deref(profile))
         ret = [ ]
         for i in xrange(solns.Length()):
             p = MixedBehaviorProfileDouble()
@@ -168,7 +174,7 @@ cdef class LCPBehaviorSolverDouble(object):
             ret.append(p)
         return ret
 
-cdef class LCPBehaviorSolverRational(object):
+cdef class LCPBehaviorSolverRational:
     cdef c_NashLcpBehaviorSolverRational *alg
 
     def __cinit__(self, p_stopAfter=0, p_maxDepth=0):
@@ -178,7 +184,9 @@ cdef class LCPBehaviorSolverRational(object):
     def solve(self, Game game):
         cdef c_List[c_MixedBehaviorProfileRational] solns
         cdef MixedBehaviorProfileRational p
-        solns = self.alg.Solve(game.game)
+        cdef shared_ptr[c_BehaviorSupportProfile] profile
+        profile = make_shared[c_BehaviorSupportProfile](game.game)
+        solns = self.alg.Solve(deref(profile))
         ret = [ ]
         for i in xrange(solns.Length()):
             p = MixedBehaviorProfileRational()
@@ -186,7 +194,7 @@ cdef class LCPBehaviorSolverRational(object):
             ret.append(p)
         return ret
 
-cdef class LCPStrategySolverDouble(object): 
+cdef class LCPStrategySolverDouble:
     cdef c_NashLcpStrategySolverDouble *alg
 
     def __cinit__(self, p_stopAfter=0, p_maxDepth=0):
@@ -204,7 +212,7 @@ cdef class LCPStrategySolverDouble(object):
             ret.append(p)
         return ret
 
-cdef class LCPStrategySolverRational(object):
+cdef class LCPStrategySolverRational:
     cdef c_NashLcpStrategySolverRational *alg
 
     def __cinit__(self, p_stopAfter=0, p_maxDepth=0):
@@ -235,14 +243,14 @@ cdef extern from "tools/lp/nfglp.h":
 cdef extern from "tools/lp/efglp.h":
     cdef cppclass c_NashLpBehavSolverDouble "NashLpBehavSolver<double>":
         c_NashLpBehavSolverDouble()
-        c_List[c_MixedBehaviorProfileDouble] Solve(c_Game) except +RuntimeError
+        c_List[c_MixedBehaviorProfileDouble] Solve(c_BehaviorSupportProfile) except +RuntimeError
 
     cdef cppclass c_NashLpBehavSolverRational "NashLpBehavSolver<Rational>":
         c_NashLpBehavSolverRational()
-        c_List[c_MixedBehaviorProfileRational] Solve(c_Game) except +RuntimeError
+        c_List[c_MixedBehaviorProfileRational] Solve(c_BehaviorSupportProfile) except +RuntimeError
 
 
-cdef class LPBehaviorSolverDouble(object):
+cdef class LPBehaviorSolverDouble:
     cdef c_NashLpBehavSolverDouble *alg
 
     def __cinit__(self):
@@ -252,7 +260,9 @@ cdef class LPBehaviorSolverDouble(object):
     def solve(self, Game game):
         cdef c_List[c_MixedBehaviorProfileDouble] solns
         cdef MixedBehaviorProfileDouble p
-        solns = self.alg.Solve(game.game)
+        cdef shared_ptr[c_BehaviorSupportProfile] profile
+        profile = make_shared[c_BehaviorSupportProfile](game.game)
+        solns = self.alg.Solve(deref(profile))
         ret = [ ]
         for i in xrange(solns.Length()):
             p = MixedBehaviorProfileDouble()
@@ -260,7 +270,7 @@ cdef class LPBehaviorSolverDouble(object):
             ret.append(p)
         return ret
 
-cdef class LPBehaviorSolverRational(object):
+cdef class LPBehaviorSolverRational:
     cdef c_NashLpBehavSolverRational *alg
 
     def __cinit__(self):
@@ -270,7 +280,9 @@ cdef class LPBehaviorSolverRational(object):
     def solve(self, Game game):
         cdef c_List[c_MixedBehaviorProfileRational] solns
         cdef MixedBehaviorProfileRational p
-        solns = self.alg.Solve(game.game)
+        cdef shared_ptr[c_BehaviorSupportProfile] profile
+        profile = make_shared[c_BehaviorSupportProfile](game.game)
+        solns = self.alg.Solve(deref(profile))
         ret = [ ]
         for i in xrange(solns.Length()):
             p = MixedBehaviorProfileRational()
@@ -278,7 +290,7 @@ cdef class LPBehaviorSolverRational(object):
             ret.append(p)
         return ret
 
-cdef class LPStrategySolverDouble(object): 
+cdef class LPStrategySolverDouble:
     cdef c_NashLpStrategySolverDouble *alg
 
     def __cinit__(self):
@@ -296,7 +308,7 @@ cdef class LPStrategySolverDouble(object):
             ret.append(p)
         return ret
 
-cdef class LPStrategySolverRational(object):
+cdef class LPStrategySolverRational:
     cdef c_NashLpStrategySolverRational *alg
 
     def __cinit__(self):
@@ -321,7 +333,7 @@ cdef extern from "solvers/simpdiv/simpdiv.h":
         c_List[c_MixedStrategyProfileRational] Solve(c_Game) except +RuntimeError
         c_List[c_MixedStrategyProfileRational] Solve(c_MixedStrategyProfileRational) except +RuntimeError
 
-cdef class SimpdivStrategySolver(object):
+cdef class SimpdivStrategySolver:
     cdef c_NashSimpdivStrategySolver *alg
 
     def __cinit__(self):
@@ -344,7 +356,7 @@ cdef extern from "solvers/ipa/ipa.h":
         c_NashIPAStrategySolver()
         c_List[c_MixedStrategyProfileDouble] Solve(c_Game) except +RuntimeError
 
-cdef class IPAStrategySolver(object):
+cdef class IPAStrategySolver:
     cdef c_NashIPAStrategySolver *alg
 
     def __cinit__(self):
@@ -367,7 +379,7 @@ cdef extern from "solvers/gnm/gnm.h":
         c_NashGNMStrategySolver()
         c_List[c_MixedStrategyProfileDouble] Solve(c_Game) except +RuntimeError
 
-cdef class GNMStrategySolver(object):
+cdef class GNMStrategySolver:
     cdef c_NashGNMStrategySolver *alg
 
     def __cinit__(self):
@@ -410,7 +422,7 @@ cdef extern from "nash.h":
     c_LogitQREMixedStrategyProfile *_logit_atlambda "logit_atlambda"(c_Game, double)
     c_List[c_LogitQREMixedStrategyProfile] _logit_principal_branch "logit_principal_branch"(c_Game, double)
     
-cdef class LogitQREMixedStrategyProfile(object):
+cdef class LogitQREMixedStrategyProfile:
     cdef c_LogitQREMixedStrategyProfile *thisptr
     def __init__(self, game=None):
         if game is not None:

@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   bool quiet = false, useStrategic = false;
   double maxLambda = 1000000.0;
-  std::string mleFile = "";
+  std::string mleFile;
   double maxDecel = 1.1;
   double hStart = 0.03;
   double targetLambda = -1.0;
@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
       throw UndefinedException("Computing equilibria of games with imperfect recall is not supported.");
     }
 
-    if (mleFile != "" && (!game->IsTree() || useStrategic)) {
+    if (!mleFile.empty() && (!game->IsTree() || useStrategic)) {
       MixedStrategyProfile<double> frequencies(game->NewMixedStrategyProfile(0.0));
       std::ifstream mleData(mleFile.c_str());
-      ReadProfile(mleData, frequencies);
+      ReadProfile(mleData, static_cast<Vector<double> &>(frequencies));
 
       LogitQREMixedStrategyProfile start(game);
       StrategicQREEstimator tracer;

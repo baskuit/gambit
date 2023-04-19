@@ -42,8 +42,8 @@ private:
 public:
     // constructors
     gRectangle(const gRectangle<T>&);
-    gRectangle(const Gambit::List<gInterval<T> >&);
-    gRectangle(const Gambit::Vector<T>, const Gambit::Vector<T>);
+    explicit gRectangle(const Gambit::List<gInterval<T> >&);
+    gRectangle(const Gambit::Vector<T> &, const Gambit::Vector<T> &);
     ~gRectangle();
 
     // operators

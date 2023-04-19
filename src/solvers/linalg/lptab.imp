@@ -290,30 +290,30 @@ void LPTableau<T>::ReversePivots(List<Array<int> > &PivotList)
 	  // gout << "\nj not row to exit in prior tableau: a_ij <= 0";
 	  BestSet.Remove(i);
 	}
-	else {
-	  // next check that prior pivot entry attains max ratio
-	  b_i = solution[BestSet[i]]/tmpcol[BestSet[i]];
-	  ratio = b_i/a_ij;
-  
-	  flag = false;
-	  for(k=tmpcol.First();k<=tmpcol.Last() && !flag;k++) 
-	    if(k!=BestSet[i]) {
-	      a_ik = - a_ij * tmpcol[k];
-	      b_k = solution[k] - b_i*tmpcol[k];
-	      if(this->GtZero(a_ik) && this->GtZero(b_k/a_ik -ratio)) {
-		// gout << "\nj not row to exit in prior tableau: ";
-		// gout << "higher ratio at row= " << k;
-		BestSet.Remove(i);
-		flag = true;
-	      }
-	      else if(this->GtZero(a_ik) && this->EqZero(b_k/a_ik-ratio) && this->Label(k)<j) {
-		// gout << "\nj not row to exit in prior tableau: ";
-		// gout << "same ratio,lower lex at k= " << k;
-		BestSet.Remove(i);
-		flag = true;
-	      }
-	    }
-	}
+    else {
+      // next check that prior pivot entry attains max ratio
+      b_i = solution[BestSet[i]] / tmpcol[BestSet[i]];
+      ratio = b_i / a_ij;
+
+      flag = false;
+      for (k = tmpcol.First(); k <= tmpcol.Last() && !flag; k++)
+        if (k != BestSet[i]) {
+          a_ik = -a_ij * tmpcol[k];
+          b_k = solution[k] - b_i * tmpcol[k];
+          if (this->GtZero(a_ik) && this->GtZero(b_k / a_ik - ratio)) {
+            // gout << "\nj not row to exit in prior tableau: ";
+            // gout << "higher ratio at row= " << k;
+            BestSet.Remove(i);
+            flag = true;
+          }
+          else if (this->GtZero(a_ik) && this->EqZero(b_k / a_ik - ratio) && this->Label(k) < j) {
+            // gout << "\nj not row to exit in prior tableau: ";
+            // gout << "same ratio,lower lex at k= " << k;
+            BestSet.Remove(i);
+            flag = true;
+          }
+        }
+    }
       }
     }
     // gout << "\nafter checking rows, BestSet = ";
@@ -395,7 +395,7 @@ void LPTableau<T>::ReversePivots(List<Array<int> > &PivotList)
     // gout << "\nafter checking cols, BestSet = ";
     // BestSet.Dump(gout);
 
-    if(BestSet.Length()>0) 
+    if (!BestSet.empty())
       for(i=1;i<=BestSet.Length();i++) {
 	pivot[1] = BestSet[i];
 	pivot[2] = j;
@@ -697,11 +697,13 @@ int LPTableau<T>::LastLabel( )
 template <class T>
 void LPTableau<T>::BasisSelect(const Array<T> &rowv, Vector<T> &colv) const
 {
-  for(int i=this->basis.First(); i<=this->basis.Last(); i++) {
-    if(this->basis.Label(i)<0)
-      colv[i]= 0;
-    else
-      colv[i]= rowv[this->basis.Label(i)];
+  for (int i = this->basis.First(); i <= this->basis.Last(); i++) {
+    if (this->basis.Label(i) < 0) {
+      colv[i] = (T) 0;
+    }
+    else {
+      colv[i] = rowv[this->basis.Label(i)];
+    }
   }
 }
 

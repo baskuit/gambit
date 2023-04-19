@@ -101,9 +101,10 @@ Sfg::~Sfg()
   delete sequences;
 }
 
-void Sfg::
-MakeSequenceForm(const Gambit::GameNode &n, Gambit::Rational prob,Gambit::Array<int>seq, 
-		 Gambit::Array<Gambit::GameInfoset> iset, Gambit::Array<Sequence *> parent) 
+void
+Sfg::MakeSequenceForm(
+  const Gambit::GameNode &n, const Gambit::Rational &prob, Gambit::Array<int> seq,
+  Gambit::Array<Gambit::GameInfoset> iset, Gambit::Array<Sequence *> parent)
 { 
   int i,pl;
 
@@ -241,9 +242,9 @@ Gambit::MixedBehaviorProfile<double> Sfg::ToBehav(const Gambit::PVector<double> 
   const Sequence *parent;
   Gambit::Rational value;
 
-  int i,j;
-  for(i=1;i<=EF->NumPlayers();i++)
-    for(j=2;j<=seq[i];j++) {
+  int i, j;
+  for (i = 1; i <= EF->NumPlayers(); i++)
+    for (j = 2; j <= seq[i]; j++) {
       sij = ((*sequences)[i]->GetSFSequenceSet())[j];
       int sn = sij->GetNumber();
       parent = sij->Parent();
@@ -251,12 +252,12 @@ Gambit::MixedBehaviorProfile<double> Sfg::ToBehav(const Gambit::PVector<double> 
       // gout << "\ni,j,sn,iset,act: " << i << " " << j << " " << sn << " ";
       // gout << sij->GetInfoset()->GetNumber() << " " << sij->GetAction()->GetNumber();
 
-      if(x(i, parent->GetNumber())>(double)0)
-	value = (x(i,sn)/x(i,parent->GetNumber()));
+      if (x(i, parent->GetNumber()) > (double) 0)
+        value = Gambit::Rational(x(i, sn) / x(i, parent->GetNumber()));
       else
-	value = 0;
+        value = Gambit::Rational(0);
 
-      b(i,sij->GetInfoset()->GetNumber(),efsupp.GetIndex(sij->GetAction()))= value;
+      b(i, sij->GetInfoset()->GetNumber(), efsupp.GetIndex(sij->GetAction())) = value;
     }
   return b;
 }

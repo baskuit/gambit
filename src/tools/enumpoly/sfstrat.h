@@ -35,7 +35,7 @@ private:
   Gambit::GameAction action;
   const Sequence *parent;
   
-  Sequence(Gambit::GamePlayer pl, Gambit::GameAction a, const Sequence *p, int n) 
+  Sequence(const Gambit::GamePlayer &pl, const Gambit::GameAction &a, const Sequence *p, int n)
     : number(n), player(pl), action(a), parent(p) { }
   ~Sequence() = default;
 public:
@@ -57,7 +57,7 @@ protected:
   
 public:
   SFSequenceSet(const SFSequenceSet &s); 
-  SFSequenceSet(const Gambit::GamePlayer &p);
+  explicit SFSequenceSet(const Gambit::GamePlayer &p);
   
   SFSequenceSet &operator=(const SFSequenceSet &s); 
   bool operator==(const SFSequenceSet &s);
@@ -88,7 +88,7 @@ protected:
   Gambit::Array <SFSequenceSet *> sups;
   
 public:
-  SFSupport(const Sfg &);
+  explicit SFSupport(const Sfg &);
   SFSupport(const SFSupport &s); 
   virtual ~SFSupport();
   SFSupport &operator=(const SFSupport &s);
@@ -101,7 +101,7 @@ public:
   const Gambit::Array<Sequence *> &Sequences(int pl) const;
 
   int NumSequences(int pl) const;
-  const Gambit::Array<int> NumSequences() const;
+  Gambit::Array<int> NumSequences() const;
   int TotalNumSequences() const;
 
   void AddSequence(Sequence *);
@@ -121,7 +121,7 @@ private:
   Gambit::Array<Sequence *> profile;
   
 public:
-  SequenceProfile(const Sfg &);
+  explicit SequenceProfile(const Sfg &);
   SequenceProfile(const SequenceProfile &p);
 
   ~SequenceProfile();

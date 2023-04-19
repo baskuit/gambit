@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <cctype>
 #include <iostream>
-#include <sstream>
 #include <map>
 
 #include "gambit.h"
@@ -60,14 +59,14 @@ private:
   void IncreaseLine();
 
 public:
-  GameParserState(std::istream &p_file) :
+  explicit GameParserState(std::istream &p_file) :
     m_file(p_file), m_currentLine(1), m_currentColumn(1) { }
 
   GameFileToken GetNextToken();
   GameFileToken GetCurrentToken() const { return m_lastToken; }
   int GetCurrentLine() const { return m_currentLine; }
   int GetCurrentColumn() const { return m_currentColumn; }
-  std::string CreateLineMsg(const std::string &msg);
+  std::string CreateLineMsg(const std::string &msg) const;
   const std::string &GetLastText() const { return m_lastText; }
 };
 
@@ -265,7 +264,7 @@ GameFileToken GameParserState::GetNextToken()
   return (m_lastToken = TOKEN_SYMBOL);
 }
 
-std::string GameParserState::CreateLineMsg(const std::string &msg)
+std::string GameParserState::CreateLineMsg(const std::string &msg) const
 {
   std::stringstream stream;
   stream << "line " << m_currentLine << ":" << m_currentColumn << ": " << msg;
@@ -291,19 +290,15 @@ public:
   TableFilePlayer *m_firstPlayer, *m_lastPlayer;
   int m_numPlayers;
 
-  TableFileGame();
+  TableFileGame() : m_firstPlayer(nullptr), m_lastPlayer(nullptr), m_numPlayers(0) { }
   ~TableFileGame();
 
   void AddPlayer(const std::string &);
   int NumPlayers() const { return m_numPlayers; }
-  int NumStrategies(int pl) const;
-  std::string GetPlayer(int pl) const;
-  std::string GetStrategy(int pl, int st) const;
+  int NumStrategies(int p_player) const;
+  std::string GetPlayer(int p_player) const;
+  std::string GetStrategy(int p_player, int p_strategy) const;
 };
-
-TableFileGame::TableFileGame()
-  : m_firstPlayer(nullptr), m_lastPlayer(nullptr), m_numPlayers(0)
-{ }
 
 TableFileGame::~TableFileGame()
 {
@@ -513,7 +508,7 @@ void ParseNfgHeader(GameParserState &p_state, TableFileGame &p_data)
 }
 
 
-void ReadOutcomeList(GameParserState &p_parser, GameRep *p_nfg)
+void ReadOutcomeList(GameParserState &p_parser, Game &p_nfg)
 {
   if (p_parser.GetNextToken() == TOKEN_RBRACE) {
     // Special case: empty outcome list
@@ -579,11 +574,12 @@ void ReadOutcomeList(GameParserState &p_parser, GameRep *p_nfg)
   p_parser.GetNextToken();
 }
 
-void ParseOutcomeBody(GameParserState &p_parser, GameRep *p_nfg)
+void ParseOutcomeBody(GameParserState &p_parser, Game &p_nfg)
 {
   ReadOutcomeList(p_parser, p_nfg);
 
-  StrategyProfileIterator iter(StrategySupportProfile(static_cast<GameRep *>(p_nfg)));
+  StrategySupportProfile profile(p_nfg);
+  StrategyProfileIterator iter(profile);
 
   while (p_parser.GetCurrentToken() != TOKEN_EOF) {
     if (p_parser.GetCurrentToken() != TOKEN_NUMBER) {
@@ -603,9 +599,10 @@ void ParseOutcomeBody(GameParserState &p_parser, GameRep *p_nfg)
   }
 }
 
-void ParsePayoffBody(GameParserState &p_parser, GameRep *p_nfg)
+void ParsePayoffBody(GameParserState &p_parser, Game &p_nfg)
 {
-  StrategyProfileIterator iter(StrategySupportProfile(static_cast<GameRep *>(p_nfg)));
+  StrategySupportProfile profile(p_nfg);
+  StrategyProfileIterator iter(profile);
   int pl = 1;
 
   while (p_parser.GetCurrentToken() != TOKEN_EOF) {
@@ -631,11 +628,7 @@ Game BuildNfg(GameParserState &p_parser, TableFileGame &p_data)
     dim[pl] = p_data.NumStrategies(pl);
   }
 
-  GameRep *nfg = NewTable(dim);
-  // Assigning this to the container assures that, if something goes
-  // wrong, the class will automatically be cleaned up
-  Game game = nfg;
-
+  Game nfg = NewTable(dim);
   nfg->SetTitle(p_data.m_title);
   nfg->SetComment(p_data.m_comment);
 
@@ -657,7 +650,7 @@ Game BuildNfg(GameParserState &p_parser, TableFileGame &p_data)
       p_parser.CreateLineMsg("Expecting outcome or payoff"));
   }
 
-  return game;
+  return nfg;
 }
 
 
@@ -677,7 +670,7 @@ public:
 };
 
 void ReadPlayers(GameParserState &p_state,
-		 Game p_game, TreeData &p_treeData)
+                 Game &p_game, TreeData &p_treeData)
 {
   if (p_state.GetNextToken() != TOKEN_LBRACE) {
     throw InvalidFileException(
@@ -704,8 +697,8 @@ void ReadPlayers(GameParserState &p_state,
 //                next node declaration.
 //
 void ParseOutcome(GameParserState &p_state,
-		  Game p_game, TreeData &p_treeData,
-		  GameNode p_node)
+                  Game &p_game, TreeData &p_treeData,
+                  GameNode &p_node)
 {
   if (p_state.GetCurrentToken() != TOKEN_NUMBER) {
     throw InvalidFileException(
@@ -780,7 +773,7 @@ void ParseNode(GameParserState &p_state, Game p_game, GameNode p_node,
 //                beginning the next node entry
 //
 void ParseChanceNode(GameParserState &p_state,
-		     Game p_game, GameNode p_node, TreeData &p_treeData)
+                     Game &p_game, GameNode &p_node, TreeData &p_treeData)
 {
   if (p_state.GetNextToken() != TOKEN_TEXT) {
     throw InvalidFileException(p_state.CreateLineMsg("Expecting label"));
@@ -1006,7 +999,7 @@ private:
   TiXmlDocument doc;
 
 public:
-  GameXMLSavefile(const std::string &p_xml);
+  explicit GameXMLSavefile(const std::string &p_xml);
   ~GameXMLSavefile()  = default;
 
   Game GetGame() const;

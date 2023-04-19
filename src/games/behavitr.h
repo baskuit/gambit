@@ -53,7 +53,7 @@ public:
   /// @name Lifecycle
   //@{
   /// Construct a new iterator on the support, with no actions held fixed
-  BehaviorProfileIterator(const BehaviorSupportProfile &);
+  explicit BehaviorProfileIterator(const BehaviorSupportProfile &);
   /// Construct a new iterator on the support, holding the action fixed
   BehaviorProfileIterator(const BehaviorSupportProfile &, const GameAction &);
   //@}
@@ -68,8 +68,6 @@ public:
   bool AtEnd() const { return m_atEnd; }
   /// Get the current behavior profile
   const PureBehaviorProfile &operator*() const { return m_profile; }
-  /// Get the current behavior profile
-  const PureBehaviorProfile *const operator->() const { return &m_profile; }
   //@}
 };
 

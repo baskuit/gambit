@@ -129,7 +129,7 @@ template <class T> class QuikSolv {
 					const int&,
 					      int*)                  const;
 
-  const bool         ARootExistsRecursion(const gRectangle<double>&, 
+  bool         ARootExistsRecursion(const gRectangle<double>&,
 					        Gambit::Vector<double>&,
 					  const gRectangle<double>&, 
 					        Gambit::Array<int>&)        const;
@@ -141,7 +141,7 @@ template <class T> class QuikSolv {
     const char *what() const noexcept override
     { return "Newton method failed to polish approximate root"; }
   };
-   QuikSolv(const gPolyList<T> &);  
+   explicit QuikSolv(const gPolyList<T> &);
    QuikSolv(const gPolyList<T> &, const int &);  
    QuikSolv(const QuikSolv<T> &);
    ~QuikSolv();
@@ -156,15 +156,15 @@ template <class T> class QuikSolv {
      { return System.AmbientSpace(); }
    inline const term_order*              TermOrder()                 const 
      { return System.TermOrder(); }
-   inline const int                      Dmnsn()                     const 
+   inline int                      Dmnsn()                     const
      { return System.Dmnsn(); }
-   inline const gPolyList<T>             UnderlyingEquations()       const 
+   inline const gPolyList<T> &UnderlyingEquations() const
      { return System; }
-   inline const bool                     WasSolved()                 const
+   inline bool WasSolved() const
      { return HasBeenSolved; }
-   inline const Gambit::List<Gambit::Vector<double> > RootList()                  const
+   inline const Gambit::List<Gambit::Vector<double> > &RootList() const
      { return Roots; }
-   inline const bool                     IsMultiaffine()             const
+   inline bool                     IsMultiaffine()             const
      { return isMultiaffine; }
 
   // Refines the accuracy of roots obtained from other algorithms

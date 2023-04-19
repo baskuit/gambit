@@ -36,7 +36,7 @@ namespace Gambit {
 
 class StrategicQREPathTracer::EquationSystem : public PathTracer::EquationSystem {
 public:
-  EquationSystem(const Game &p_game) : m_game(p_game) { }
+  explicit EquationSystem(const Game &p_game) : m_game(p_game) { }
   ~EquationSystem() override = default;
   // Compute the value of the system of equations at the specified point.
   void GetValue(const Vector<double> &p_point,
@@ -156,7 +156,7 @@ StrategicQREPathTracer::EquationSystem::GetJacobian(const Vector<double> &p_poin
 
 class StrategicQREPathTracer::LambdaCriterion : public PathTracer::CriterionFunction {
 public:
-  LambdaCriterion(double p_lambda) : m_lambda(p_lambda) { }
+  explicit LambdaCriterion(double p_lambda) : m_lambda(p_lambda) { }
 
   double operator()(const Vector<double> &p_point,
 			    const Vector<double> &p_tangent) const override
@@ -174,13 +174,12 @@ class StrategicQREPathTracer::CallbackFunction : public PathTracer::CallbackFunc
 public:
   CallbackFunction(std::ostream &p_stream,
 		   const Game &p_game,
-		   bool p_fullGraph, double p_decimals)
+		   bool p_fullGraph, int p_decimals)
     : m_stream(p_stream), m_game(p_game),
       m_fullGraph(p_fullGraph), m_decimals(p_decimals) { }
   ~CallbackFunction() override = default;
   
-  void operator()(const Vector<double> &p_point,
-			  bool p_isTerminal) const override;
+  void operator()(const Vector<double> &p_point, bool p_isTerminal) const override;
   const List<LogitQREMixedStrategyProfile> &GetProfiles() const
   { return m_profiles; }
   
@@ -188,13 +187,13 @@ private:
   std::ostream &m_stream;
   Game m_game;
   bool m_fullGraph;
-  double m_decimals;
+  int m_decimals;
   mutable List<LogitQREMixedStrategyProfile> m_profiles;
 };
 
 void 
-StrategicQREPathTracer::CallbackFunction::operator()(const Vector<double> &x,
-						     bool p_isTerminal) const
+StrategicQREPathTracer::CallbackFunction::operator()(const Vector<double> &p_point,
+                                                     bool p_isTerminal) const
 {
   if ((!m_fullGraph || p_isTerminal) && (m_fullGraph || !p_isTerminal)) {
     return;
@@ -202,19 +201,19 @@ StrategicQREPathTracer::CallbackFunction::operator()(const Vector<double> &x,
   m_stream.setf(std::ios::fixed);
   // By convention, we output lambda first
   if (!p_isTerminal) {
-    m_stream << std::setprecision(m_decimals) << x[x.Length()];
+    m_stream << std::setprecision(m_decimals) << p_point[p_point.Length()];
   }
   else {
     m_stream << "NE";
   }
   m_stream.unsetf(std::ios::fixed);
   MixedStrategyProfile<double> profile(m_game->NewMixedStrategyProfile(0.0));
-  for (int i = 1; i < x.Length(); i++) {
-    profile[i] = exp(x[i]);
+  for (int i = 1; i < p_point.Length(); i++) {
+    profile[i] = exp(p_point[i]);
     m_stream << "," << std::setprecision(m_decimals) << profile[i];
   }
   m_stream << std::endl;
-  m_profiles.push_back(LogitQREMixedStrategyProfile(profile, x[x.Length()], 0.0));
+  m_profiles.push_back(LogitQREMixedStrategyProfile(profile, p_point.back(), 0.0));
 }
 
 //----------------------------------------------------------------------------
@@ -274,7 +273,7 @@ double LogLike(const Vector<double> &p_frequencies, const Vector<double> &p_poin
 
 class StrategicQREEstimator::CriterionFunction : public PathTracer::CriterionFunction {
 public:
-  CriterionFunction(const Vector<double> &p_frequencies)
+  explicit CriterionFunction(const Vector<double> &p_frequencies)
     : m_frequencies(p_frequencies) { }
   ~CriterionFunction() override = default;
 
@@ -301,14 +300,14 @@ public:
   CallbackFunction(std::ostream &p_stream,
 		   const Game &p_game,
 		   const Vector<double> &p_frequencies,
-		   bool p_fullGraph, double p_decimals);
+		   bool p_fullGraph, int p_decimals);
   ~CallbackFunction() override = default;
   
   void operator()(const Vector<double> &p_point,
 			  bool p_isTerminal) const override;
 
   LogitQREMixedStrategyProfile GetMaximizer() const {
-    return LogitQREMixedStrategyProfile(m_bestProfile, m_bestLambda, m_maxlogL);
+    return { m_bestProfile, m_bestLambda, m_maxlogL };
   }
   void PrintMaximizer() const;
 		    
@@ -319,7 +318,7 @@ private:
   Game m_game;
   const Vector<double> &m_frequencies;
   bool m_fullGraph;
-  double m_decimals;
+  int m_decimals;
   mutable MixedStrategyProfile<double> m_bestProfile;
   mutable double m_bestLambda;
   mutable double m_maxlogL;
@@ -328,12 +327,12 @@ private:
 StrategicQREEstimator::CallbackFunction::CallbackFunction(std::ostream &p_stream,
 							  const Game &p_game,
 							  const Vector<double> &p_frequencies,
-							  bool p_fullGraph, double p_decimals)
+							  bool p_fullGraph, int p_decimals)
   : m_stream(p_stream), m_game(p_game), m_frequencies(p_frequencies),
     m_fullGraph(p_fullGraph), m_decimals(p_decimals),
     m_bestProfile(p_game->NewMixedStrategyProfile(0.0)),
     m_bestLambda(0.0),
-    m_maxlogL(LogLike(p_frequencies, m_bestProfile))
+    m_maxlogL(LogLike(p_frequencies, static_cast<const Vector<double> &>(m_bestProfile)))
 { }
 
 void
@@ -377,7 +376,7 @@ StrategicQREEstimator::CallbackFunction::operator()(const Vector<double> &x,
   for (int i = 1; i < x.Length(); i++) {
     profile[i] = exp(x[i]);
   }
-  double logL = LogLike(m_frequencies, profile);
+  double logL = LogLike(m_frequencies, static_cast<const Vector<double> &>(profile));
   PrintProfile(profile, logL);
   m_stream << std::endl;
   if (logL > m_maxlogL) {
@@ -408,12 +407,12 @@ StrategicQREEstimator::Estimate(const LogitQREMixedStrategyProfile &p_start,
   x[x.Length()] = p_start.GetLambda();
 
   CallbackFunction callback(p_stream, p_start.GetGame(),
-			    p_frequencies, m_fullGraph, m_decimals);
+			    static_cast<const Vector<double> &>(p_frequencies), m_fullGraph, m_decimals);
   while (x[x.Length()] < p_maxLambda) {
     TracePath(EquationSystem(p_start.GetGame()),
 	      x, p_maxLambda, p_omega,
 	      callback,
-	      CriterionFunction(p_frequencies));
+	      CriterionFunction(static_cast<const Vector<double> &>(p_frequencies)));
     if (x[x.Length()] < p_maxLambda) {
       // Found an extremum of the likelihood function
       // start iterating again from the same point in case of

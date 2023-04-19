@@ -20,8 +20,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 
-#include "core/rational.h"
-#include "core/vector.h"
+#include "gambit.h"
 #include "interval.h"
 #include "gcomplex.h"
 
@@ -42,12 +41,12 @@ private:
 
 public: 
     // constructors and destructor
-  polynomial(const int=-1);
+  explicit polynomial(int=-1);
   polynomial(const polynomial<T> &);
-  polynomial(const Gambit::List<T> &);
-  polynomial(const Gambit::Vector<T> &);
+  explicit polynomial(const Gambit::List<T> &);
+  explicit polynomial(const Gambit::Vector<T> &);
   polynomial(const T&, const int&);
-  ~polynomial();
+  ~polynomial() = default;
 
     // unary operators
          polynomial<T>    operator -  () const;
@@ -57,7 +56,7 @@ public:
          polynomial<T>&     operator =  (const polynomial<T>& y);
          bool               operator == (const polynomial<T>& y) const;
          bool               operator != (const polynomial<T>& y) const;
-         const T&           operator [] (const int index)        const;
+         const T&           operator [] (int index)        const;
          polynomial<T>      operator +  (const polynomial<T>& y) const;
          polynomial<T>      operator -  (const polynomial<T>& y) const;
          polynomial<T>      operator *  (const polynomial<T>& y) const;
@@ -79,7 +78,7 @@ public:
   T                      EvaluationAt(const T& arg)                   const;  
   int                    Degree()                                     const;
   T                      LeadingCoefficient()                         const;
-  Gambit::List<T>               CoefficientList()                            const;
+  Gambit::List<T> CoefficientList()                            const;
   polynomial<T>          GcdWith(const polynomial<T>&)                const;
   bool                   IsQuadratfrei()                              const;
   bool                   CannotHaveRootsIn(const gInterval<T>&)       const;
@@ -113,9 +112,9 @@ private:
 
 public: 
     // constructors and destructor
-  complexpoly(const int=-1);
+  explicit complexpoly(int=-1);
   complexpoly(const complexpoly &);
-  complexpoly(const Gambit::List<gComplex> &);
+  explicit complexpoly(const Gambit::List<gComplex> &);
   complexpoly(const gComplex&, const int&);
   ~complexpoly();
 
@@ -127,7 +126,7 @@ public:
   complexpoly&  operator =  (const complexpoly& y);
   bool                    operator == (const complexpoly& y) const;
   bool                    operator != (const complexpoly& y) const;
-  const gComplex&         operator [] (const int index)      const;
+  const gComplex&         operator [] (int index)      const;
   complexpoly             operator +  (const complexpoly& y) const;
   complexpoly             operator -  (const complexpoly& y) const;
   complexpoly             operator *  (const complexpoly& y) const;

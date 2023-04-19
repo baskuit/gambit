@@ -78,7 +78,7 @@ public:
   Game GetGame() const { return m_nfg; }
 
   /// Returns the number of strategies in the support for player pl.
-  int NumStrategies(int pl) const  { return m_support[pl].Length(); }
+  int NumStrategies(int pl) const  { return m_support[pl].size(); }
 
   /// Returns the number of strategies in the support for all players.
   Array<int> NumStrategies() const;
@@ -155,9 +155,9 @@ public:
   public:
     /// @name Lifecycle
     //@{
-    iterator(const StrategySupportProfile &S, int p_pl = 1, int p_st = 1) : 
+    explicit iterator(const StrategySupportProfile &S, int p_pl = 1, int p_st = 1) :
       support(S), pl(p_pl), strat(p_st) { }
-    ~iterator() { }
+    ~iterator() = default;
     //@}
 
     /// @name Operator overloading

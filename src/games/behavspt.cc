@@ -193,8 +193,9 @@ void BehaviorSupportProfile::AddAction(const GameAction &s)
   }
 
   List<GameNode> startlist(ReachableMembers(s->GetInfoset()));
-  for (int i = 1; i <= startlist.Length(); i++)
-    DeactivateSubtree(startlist[i]);
+  for (const auto &node : ReachableMembers(s->GetInfoset())) {
+    DeactivateSubtree(node);
+  }
 }
 
 int BehaviorSupportProfile::NumSequences(int j) const
@@ -320,9 +321,7 @@ public:
   /// Has iterator gone past the end?
   bool AtEnd() const { return m_atEnd; }
   /// Get the current behavior profile
-  const PureBehaviorProfile &operator*() const { return m_profile; }
-  /// Get the current behavior profile
-  const PureBehaviorProfile *const operator->() const { return &m_profile; }
+  const PureBehaviorProfile *operator->() const { return &m_profile; }
   //@}
 };
 
@@ -413,8 +412,8 @@ bool BehaviorSupportProfile::Dominates(const GameAction &a, const GameAction &b,
 
   if (!p_conditional) {
     for (BehaviorProfileIterator iter(*this, a); !iter.AtEnd(); iter++) {
-      Rational ap = iter->GetPayoff<Rational>(a);
-      Rational bp = iter->GetPayoff<Rational>(b);
+      Rational ap = (*iter).GetPayoff<Rational>(a);
+      Rational bp = (*iter).GetPayoff<Rational>(b);
 
       if (p_strict) {
 	if (ap <= bp) {
@@ -434,7 +433,7 @@ bool BehaviorSupportProfile::Dominates(const GameAction &a, const GameAction &b,
 
   else {
     List<GameNode> nodelist = ReachableMembers(infoset);  
-    if (nodelist.Length() == 0) {
+    if (nodelist.empty()) {
       // This may not be a good idea; I suggest checking for this
       // prior to entry
       for (int i = 1; i <= infoset->NumMembers(); i++) {

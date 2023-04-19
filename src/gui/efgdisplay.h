@@ -38,7 +38,7 @@ private:
   //@}
 
 public:
-  gbtPayoffEditor(wxWindow *p_parent);
+  explicit gbtPayoffEditor(wxWindow *p_parent);
 
   void BeginEdit(gbtNodeEntry *p_node, int p_player);
   void EndEdit();
@@ -95,7 +95,7 @@ public:
   
   const gbtTreeLayout &GetLayout() const { return m_layout; }
 
-  void EnsureNodeVisible(Gambit::GameNode);
+  void EnsureNodeVisible(const Gambit::GameNode &);
 
   DECLARE_EVENT_TABLE()
 };

@@ -35,7 +35,7 @@ namespace Gambit {
 
 class AgentQREPathTracer::EquationSystem : public PathTracer::EquationSystem {
 public:
-  EquationSystem(const Game &p_game);
+  explicit EquationSystem(const Game &p_game);
   ~EquationSystem() override;
   // Compute the value of the system of equations at the specified point.
   void GetValue(const Vector<double> &p_point,
@@ -69,7 +69,7 @@ private:
     GameInfoset m_infoset;
 
   public:
-    SumToOneEquation(Game p_game, int p_player, int p_infoset)
+    SumToOneEquation(const Game &p_game, int p_player, int p_infoset)
       : m_game(p_game), m_pl(p_player), m_iset(p_infoset),
 	m_infoset(p_game->GetPlayer(p_player)->GetInfoset(p_infoset))
     { }
@@ -92,7 +92,7 @@ private:
     GameInfoset m_infoset;
 
   public:
-    RatioEquation(Game p_game, int p_player, int p_infoset, int p_action)
+    RatioEquation(const Game &p_game, int p_player, int p_infoset, int p_action)
       : m_game(p_game), m_pl(p_player), m_iset(p_infoset), m_act(p_action),
 	m_infoset(p_game->GetPlayer(p_player)->GetInfoset(p_infoset))
     { }
@@ -222,7 +222,7 @@ void
 AgentQREPathTracer::EquationSystem::GetValue(const Vector<double> &p_point,
 					     Vector<double> &p_lhs) const
 {
-  LogBehavProfile<double> profile(m_game);
+  LogBehavProfile<double> profile((BehaviorSupportProfile(m_game)));
   for (int i = 1; i <= profile.Length(); i++) {
     profile.SetLogProb(i, p_point[i]);
   }
@@ -238,7 +238,7 @@ void
 AgentQREPathTracer::EquationSystem::GetJacobian(const Vector<double> &p_point, 
 						Matrix<double> &p_matrix) const
 {
-  LogBehavProfile<double> profile(m_game);
+  LogBehavProfile<double> profile((BehaviorSupportProfile(m_game)));
   for (int i = 1; i <= profile.Length(); i++) {
     profile.SetLogProb(i, p_point[i]);
   }
@@ -254,22 +254,22 @@ AgentQREPathTracer::EquationSystem::GetJacobian(const Vector<double> &p_point,
 class AgentQREPathTracer::CallbackFunction : public PathTracer::CallbackFunction {
 public:
   CallbackFunction(std::ostream &p_stream,
-		   bool p_fullGraph, double p_decimals)
+                   bool p_fullGraph, int p_decimals)
     : m_stream(p_stream),
-      m_fullGraph(p_fullGraph), m_decimals(p_decimals) { }
+      m_fullGraph(p_fullGraph), m_decimals(p_decimals)
+  {}
+
   ~CallbackFunction() override = default;
 
-  void operator()(const Vector<double> &p_point,
-			  bool p_isTerminal) const override;
+  void operator()(const Vector<double> &p_point, bool p_isTerminal) const override;
 
 private:
   std::ostream &m_stream;
   bool m_fullGraph;
-  double m_decimals;
+  int m_decimals;
 };
 
-void AgentQREPathTracer::CallbackFunction::operator()(const Vector<double> &x,
-						      bool p_isTerminal) const
+void AgentQREPathTracer::CallbackFunction::operator()(const Vector<double> &p_point, bool p_isTerminal) const
 {
   if ((!m_fullGraph || p_isTerminal) && (m_fullGraph || !p_isTerminal)) {
     return;
@@ -278,15 +278,15 @@ void AgentQREPathTracer::CallbackFunction::operator()(const Vector<double> &x,
   m_stream.setf(std::ios::fixed);
   // By convention, we output lambda first
   if (!p_isTerminal) {
-    m_stream << std::setprecision(m_decimals) << x[x.Length()];
+    m_stream << std::setprecision(m_decimals) << p_point.back();
   }
   else {
     m_stream << "NE";
   }
   m_stream.unsetf(std::ios::fixed);
 
-  for (int i = 1; i < x.Length(); i++) {
-    m_stream << "," << std::setprecision(m_decimals) << exp(x[i]);
+  for (const auto &x : p_point) {
+    m_stream << "," << std::setprecision(m_decimals) << exp(x);
   }
 
   m_stream << std::endl;
@@ -298,7 +298,7 @@ void AgentQREPathTracer::CallbackFunction::operator()(const Vector<double> &x,
 
 class AgentQREPathTracer::LambdaCriterion : public PathTracer::CriterionFunction {
 public:
-  LambdaCriterion(double p_lambda) : m_lambda(p_lambda) { }
+  explicit LambdaCriterion(double p_lambda) : m_lambda(p_lambda) { }
 
   double operator()(const Vector<double> &p_point,
 			    const Vector<double> &p_tangent) const override

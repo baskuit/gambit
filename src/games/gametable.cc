@@ -21,7 +21,6 @@
 //
 
 #include <iostream>
-#include <sstream>
 
 #include "gambit.h"
 #include "gametable.h"
@@ -39,7 +38,7 @@ protected:
   PureStrategyProfileRep *Copy() const override;
 
 public:
-  TablePureStrategyProfileRep(const Game &p_game);
+  explicit TablePureStrategyProfileRep(const Game &p_game);
   long GetIndex() const override { return m_index; }
   void SetStrategy(const GameStrategy &) override;
   GameOutcome GetOutcome() const override;
@@ -97,7 +96,7 @@ Rational TablePureStrategyProfileRep::GetPayoff(int pl) const
     return outcome->GetPayoff<Rational>(pl);
   }
   else {
-    return 0;
+    return Rational(0);
   }
 }
 
@@ -110,7 +109,7 @@ TablePureStrategyProfileRep::GetStrategyValue(const GameStrategy &p_strategy) co
     return outcome->GetPayoff<Rational>(player);
   }
   else {
-    return 0;
+    return Rational(0);
   }
 }
 
@@ -131,7 +130,9 @@ namespace {
 int Product(const Array<int> &dim)
 {
   int accum = 1;
-  for (int i = 1; i <= dim.Length(); accum *= dim[i++]);
+  for (auto d : dim) {
+    accum *= d;
+  }
   return accum;
 }
 
@@ -257,16 +258,14 @@ void GameTableRep::WriteNfgFile(std::ostream &p_file) const
   }
 
   p_file << "{\n";
-  for (int outc = 1; outc <= m_outcomes.Length(); outc++)   {
-    p_file << "{ \"" << EscapeQuotes(m_outcomes[outc]->m_label) << "\" ";
-    for (int pl = 1; pl <= m_players.Length(); pl++)  {
-      p_file << (const std::string &) m_outcomes[outc]->m_payoffs[pl];
-      
+  for (auto outcome: m_outcomes) {
+    p_file << "{ \"" << EscapeQuotes(outcome->m_label) << "\" ";
+    for (int pl = 1; pl <= m_players.Length(); pl++) {
+      p_file << (const std::string &) outcome->m_payoffs[pl];
       if (pl < m_players.Length()) {
-	p_file << ", ";
-      }
-      else {
-	p_file << " }\n";
+        p_file << ", ";
+      } else {
+        p_file << " }\n";
       }
     }
   }
@@ -290,11 +289,10 @@ void GameTableRep::WriteNfgFile(std::ostream &p_file) const
 
 GamePlayer GameTableRep::NewPlayer()
 {
-  GamePlayerRep *player = nullptr;
-  player = new GamePlayerRep(this, m_players.Length() + 1, 1);
+  auto player = new GamePlayerRep(this, m_players.size() + 1, 1);
   m_players.push_back(player);
-  for (int outc = 1; outc <= m_outcomes.Last(); outc++) {
-    m_outcomes[outc]->m_payoffs.push_back(Number());
+  for (auto outcome : m_outcomes) {
+    outcome->m_payoffs.push_back(Number());
   }
   ClearComputedValues();
   return player;
@@ -334,11 +332,11 @@ MixedStrategyProfile<Rational> GameTableRep::NewMixedStrategyProfile(const Ratio
 
 MixedStrategyProfile<double> GameTableRep::NewMixedStrategyProfile(double, const StrategySupportProfile& spt) const
 {
-  return new TableMixedStrategyProfileRep<double>(spt);
+  return MixedStrategyProfile<double>(new TableMixedStrategyProfileRep<double>(spt));
 }
 MixedStrategyProfile<Rational> GameTableRep::NewMixedStrategyProfile(const Rational &, const StrategySupportProfile& spt) const
 {
-  return new TableMixedStrategyProfileRep<Rational>(spt);
+  return MixedStrategyProfile<Rational>(new TableMixedStrategyProfileRep<Rational>(spt));
 }
 
 //------------------------------------------------------------------------

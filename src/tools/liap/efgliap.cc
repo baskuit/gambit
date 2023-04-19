@@ -32,7 +32,7 @@ using namespace Gambit;
 
 class AgentLyapunovFunction : public FunctionOnSimplices {
 public:
-  AgentLyapunovFunction(const MixedBehaviorProfile<double> &p_start)
+  explicit AgentLyapunovFunction(const MixedBehaviorProfile<double> &p_start)
     : m_game(p_start.GetGame()), m_profile(p_start)
   { }
   ~AgentLyapunovFunction() override = default;
@@ -46,9 +46,9 @@ private:
 };
 
 
-double AgentLyapunovFunction::Value(const Vector<double> &v) const
+double AgentLyapunovFunction::Value(const Vector<double> &x) const
 {
-  static_cast<Vector<double> &>(m_profile).operator=(v);
+  static_cast<Vector<double> &>(m_profile).operator=(x);
   return m_profile.GetLiapValue();
 }
 
@@ -111,13 +111,15 @@ NashLiapBehavSolver::Solve(const MixedBehaviorProfile<double> &p_start) const
     }
     
     if (sqrt(gradient.NormSquared()) < .001) {
-      this->m_onEquilibrium->Render(p, "NE");
-      solutions.push_back(p);
       break;
     }
   }
 
-  if (m_verbose && sqrt(gradient.NormSquared()) >= .001) {
+  if (fval < .00001) {
+    this->m_onEquilibrium->Render(p, "NE");
+    solutions.push_back(p);
+  }
+  else if (m_verbose) {
     this->m_onEquilibrium->Render(p, "end");
   }
 

@@ -324,7 +324,7 @@ void gbtGameFrame::OnUpdate()
   std::string gameTitle;
   gameTitle = m_doc->GetGame()->GetTitle();
 
-  if (m_doc->GetFilename() != wxT("")) {
+  if (!m_doc->GetFilename().empty()) {
     SetTitle(wxT("Gambit - [") + m_doc->GetFilename() +
 	     wxT("] ") +
 	     wxString(gameTitle.c_str(), *wxConvCurrent));
@@ -428,7 +428,7 @@ static void AppendBitmapItem(wxMenu *p_menu,
   // wxMac does not (apparently) support adding bitmaps to menu items,
   // so we do not set the bitmap in this case.
   item->SetBitmap(p_bitmap);
-#endif // !__WXMAC__
+#endif // UNUSED
   p_menu->Append(item);
 }
 
@@ -842,7 +842,7 @@ void gbtGameFrame::OnFileClose(wxCommandEvent &)
 
 void gbtGameFrame::OnFileSave(wxCommandEvent &p_event)
 {
-  if (p_event.GetId() == wxID_SAVEAS || m_doc->GetFilename() == wxT("")) {
+  if (p_event.GetId() == wxID_SAVEAS || m_doc->GetFilename().empty()) {
     wxFileDialog dialog(this, _("Choose file"),
 			wxPathOnly(m_doc->GetFilename()),
 			wxFileNameFromPath(m_doc->GetFilename()),

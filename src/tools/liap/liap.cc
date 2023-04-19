@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
   int maxitsN = 100;
   int numDecimals = 6;
   double tolN = 1.0e-10;
-  std::string startFile = "";
+  std::string startFile;
  
   int long_opt_index = 0;
   struct option long_options[] = {
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     Game game = ReadGame(*input_stream);
     if (!game->IsTree() || useStrategic) {
       List<MixedStrategyProfile<double> > starts;
-      if (startFile != "") {
+      if (!startFile.empty()) {
 	std::ifstream startPoints(startFile.c_str());
 	starts = ReadStrategyProfiles(game, startPoints);
       }
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     }
     else {
       List<MixedBehaviorProfile<double> > starts;
-      if (startFile != "") {
+      if (!startFile.empty()) {
 	std::ifstream startPoints(startFile.c_str());
 	starts = ReadBehaviorProfiles(game, startPoints);
       }

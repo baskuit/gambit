@@ -51,7 +51,7 @@ MixedStrategyDetailRenderer<T>::Render(const MixedStrategyProfile<T> &p_profile,
     for (Array<GameStrategyRep *>::const_iterator 
 	   strategy = player->Strategies().begin();
 	 strategy != player->Strategies().end(); ++strategy) {
-      if (strategy->GetLabel() != "") {
+      if (!strategy->GetLabel().empty()) {
 	m_stream << std::setw(8) << strategy->GetLabel() << "    ";
       }
       else {
@@ -96,13 +96,13 @@ BehavStrategyDetailRenderer<T>::Render(const MixedBehaviorProfile<T> &p_profile,
       for (int act = 1; act <= infoset->NumActions(); act++) {
 	GameAction action = infoset->GetAction(act);
 
-	if (infoset->GetLabel() != "") {
+	if (!infoset->GetLabel().empty()) {
 	  m_stream << std::setw(7) << infoset->GetLabel() << "    ";
 	}
 	else {
 	  m_stream << std::setw(7) << infoset->GetNumber() << "    ";
 	}
-	if (action->GetLabel() != "") {
+	if (!action->GetLabel().empty()) {
 	  m_stream << std::setw(7) << action->GetLabel() << "   ";
 	}
 	else {
@@ -129,13 +129,13 @@ BehavStrategyDetailRenderer<T>::Render(const MixedBehaviorProfile<T> &p_profile,
       
       for (int n = 1; n <= infoset->NumMembers(); n++) {
 	GameNode node = infoset->GetMember(n);
-	if (infoset->GetLabel() != "") {
+	if (!infoset->GetLabel().empty()) {
 	  m_stream << std::setw(7) << infoset->GetLabel() << "    ";
 	}
 	else {
 	  m_stream << std::setw(7) << infoset->GetNumber() << "    ";
 	}
-	if (node->GetLabel() != "") {
+	if (!node->GetLabel().empty()) {
 	  m_stream << std::setw(7) << node->GetLabel() << "   ";
 	}
 	else {
@@ -210,8 +210,8 @@ BehavViaStrategySolver<T>::Solve(const BehaviorSupportProfile &p_support) const
 {
   List<MixedStrategyProfile<T> > output = m_solver->Solve(p_support.GetGame());
   List<MixedBehaviorProfile<T> > solutions;
-  for (int i = 1; i <= output.Length(); i++) {
-    solutions.push_back(MixedBehaviorProfile<T>(output[i]));
+  for (const auto &profile : output) {
+    solutions.push_back(MixedBehaviorProfile<T>(profile));
   }
   return solutions;
 }
@@ -261,12 +261,12 @@ void ChildSubgames(const GameNode &p_node, List<GameNode> &p_list)
 //   at the end of the computation
 //
 
-template <class T>
+template<class T>
 void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_support,
-					      const DVector<T> &p_templateSolution,
-					      GameNode n,
-					      List<DVector<T> > &solns,
-					      List<GameOutcome> &values) const
+                                          const DVector<T> &p_templateSolution,
+                                          const GameNode &n,
+                                          List<DVector<T> > &solns,
+                                          List<GameOutcome> &values) const
 {
   Game efg = p_support.GetGame();
   
@@ -290,7 +290,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
     SolveSubgames(p_support, p_templateSolution,
 		  subroots[i], subsolns, subvalues);
     
-    if (subsolns.Length() == 0)  {
+    if (subsolns.empty())  {
       solns = List<DVector<T> >();
       return;
     }
@@ -360,7 +360,7 @@ void SubgameBehavSolver<T>::SolveSubgames(const BehaviorSupportProfile &p_suppor
 
     List<MixedBehaviorProfile<T> > sol = m_solver->Solve(subsupport);
     
-    if (sol.Length() == 0)  {
+    if (sol.empty())  {
       solns = List<DVector<T> >();
       //printf("No solutions found\n");
       return;
