@@ -27,7 +27,7 @@ set(GAMBIT_SOURCES
     src/games/nash.cc
     src/games/stratitr.cc
     src/games/stratspt.cc
-    src/games/writer.cc
+    # src/games/writer.cc
 
     src/games/agg/agg.cc
     src/games/agg/bagg.cc
@@ -42,12 +42,7 @@ set(GAMBIT_SOURCES
     src/solvers/linalg/tableau.cc
 
     src/solvers/enummixed/clique.cc
-    src/solvers/enummixed/lrsenum.cc
     src/solvers/enummixed/enummixed.cc
-
-    src/solvers/lrs/lrslib.c
-    src/solvers/lrs/lrsmp.c
-    src/solvers/lrs/lrsnashlib.c
 )
 
 include_directories(
