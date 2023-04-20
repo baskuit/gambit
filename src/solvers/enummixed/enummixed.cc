@@ -142,7 +142,7 @@ namespace Gambit
       VertexEnumerator<T> poly1(A1, b1); // Instantiantion calls method 'Enum()'
       VertexEnumerator<T> poly2(A2, b2);
 
-      const List<BFS<T>> &verts1(poly1.VertexList());
+      const List<BFS<T>> &verts1(poly1.VertexList()); // List is computed in prior instantiation. This simply returns ref to that LIst member
       const List<BFS<T>> &verts2(poly2.VertexList());
       solution->m_v1 = verts1.Length();
       solution->m_v2 = verts2.Length();
@@ -152,7 +152,7 @@ namespace Gambit
       for (int i = 1; i <= vert1id.Length(); vert1id[i++] = 0)
         ;
       for (int i = 1; i <= vert2id.Length(); vert2id[i++] = 0)
-        ;
+        ; // Initialize vert1id, 2id lists with resp. lengths as 0
 
       int i = 0;
       int id1 = 0, id2 = 0;
@@ -172,7 +172,7 @@ namespace Gambit
           {
             if (bfs1.count(k) && bfs2.count(-k))
             {
-              nash = EqZero(bfs1[k] * bfs2[-k]);
+              nash = EqZero(bfs1[k] * bfs2[-k]); // each value for 
             }
           }
           for (size_t k = 1; nash && k <= cols; k++)
@@ -209,11 +209,11 @@ namespace Gambit
             //       The keys should also keep track of the basis
             //       As things stand now, two different bases could lead to
             //       the same key... BAD!
-            if (vert1id[i1] == 0)
+            if (vert1id[i1] == 0) // This check doesnt do anything? Yes it does!!!
             {
               id1++;
               vert1id[i1] = id1;
-              solution->m_key2.push_back(eqm[p_game->GetPlayer(2)]);
+              solution->m_key2.push_back(eqm[p_game->GetPlayer(2)]); // m_key is list of vectors
             }
             if (vert2id[i2] == 0)
             {
@@ -221,7 +221,7 @@ namespace Gambit
               vert2id[i2] = id2;
               solution->m_key1.push_back(eqm[p_game->GetPlayer(1)]);
             }
-            solution->m_node1.push_back(vert2id[i2]);
+            solution->m_node1.push_back(vert2id[i2]); //m_node is list of int
             solution->m_node2.push_back(vert1id[i1]);
           }
         }
