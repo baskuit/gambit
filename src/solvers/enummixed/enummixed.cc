@@ -73,17 +73,17 @@ EnumMixedStrategySolution<T>::GetCliques() const
 template <class T> std::shared_ptr<EnumMixedStrategySolution<T> >
 EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
 {
-  if (p_game->NumPlayers() != 2) {
-    throw UndefinedException("Method only valid for two-player games.");
-  }
-  if (!p_game->IsPerfectRecall()) {
-    throw UndefinedException("Computing equilibria of games with imperfect recall is not supported.");
-  }
+  // if (p_game->NumPlayers() != 2) {
+  //   throw UndefinedException("Method only valid for two-player games.");
+  // } 
+  // if (!p_game->IsPerfectRecall()) {
+  //   throw UndefinedException("Computing equilibria of games with imperfect recall is not supported.");
+  // }
   std::shared_ptr<EnumMixedStrategySolution<T> > solution(new EnumMixedStrategySolution<T>(p_game));
 
   PureStrategyProfile profile = p_game->NewPureStrategyProfile();
 
-  Rational min = p_game->GetMinPayoff();
+  Rational min = p_game->GetMinPayoff(); // Converts to rational anyway????
   if (min > Rational(0)) {
     min = Rational(0);
   }
@@ -94,31 +94,36 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
     max = Rational(0);
   }
 
-  Rational fac(1, max - min);
+  Rational fac(1, max - min); // max and min are for both players
 
-  // Construct matrices A1, A2
-  Matrix<T> A1(1, p_game->Players()[1]->Strategies().size(),
-	       1, p_game->Players()[2]->Strategies().size());
-  Matrix<T> A2(1, p_game->Players()[2]->Strategies().size(),
-	       1, p_game->Players()[1]->Strategies().size());
+  // Add row, col for clarity
 
-  for (size_t i = 1; i <= p_game->Players()[1]->Strategies().size(); i++) {
+  int rows = p_game->Players()[1]->Strategies().size();
+  int cols = p_game->Players()[2]->Strategies().size();
+
+  // Construct matrices A1, A2 // T = double
+  Matrix<T> A1(1, rows,
+	       1, cols);
+  Matrix<T> A2(1, cols,
+	       1, rows);
+
+  for (size_t i = 1; i <= rows; i++) {
     profile->SetStrategy(p_game->Players()[1]->Strategies()[i]);
-    for (size_t j = 1; j <= p_game->Players()[2]->Strategies().size(); j++) {
-      profile->SetStrategy(p_game->Players()[2]->Strategies()[j]);
+    for (size_t j = 1; j <= cols; j++) {
+      profile->SetStrategy(p_game->Players()[2]->Strategies()[j]); // Redundant?
       A1(i, j) = fac * (profile->GetPayoff(1) - min);
       A2(j, i) = fac * (profile->GetPayoff(2) - min);
     }
   }
 
-  // Construct vectors b1, b2
-  Vector<T> b1(1, p_game->Players()[1]->Strategies().size());
-  Vector<T> b2(1, p_game->Players()[2]->Strategies().size());
+  // Construct vectors b1, b2 // Length rows, cols with default value -1
+  Vector<T> b1(1, rows);
+  Vector<T> b2(1, cols);
   b1 = (T) -1;
   b2 = (T) -1;
 
   // enumerate vertices of A1 x + b1 <= 0 and A2 x + b2 <= 0
-  VertexEnumerator<T> poly1(A1, b1);
+  VertexEnumerator<T> poly1(A1, b1); // Instantiantion calls method 'Enum()'
   VertexEnumerator<T> poly2(A2, b2);
 
   const List<BFS<T> > &verts1(poly1.VertexList());
@@ -143,12 +148,12 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
       // check if solution is nash 
       // need only check complementarity, since it is feasible
       bool nash = true;
-      for (size_t k = 1; nash && k <= p_game->Players()[1]->Strategies().size(); k++) {
+      for (size_t k = 1; nash && k <= rows; k++) {
         if (bfs1.count(k) && bfs2.count(-k)) {
           nash = EqZero(bfs1[k] * bfs2[-k]);
         }
       }
-      for (size_t k = 1; nash && k <= p_game->Players()[2]->Strategies().size(); k++) {
+      for (size_t k = 1; nash && k <= cols; k++) {
         if (bfs2.count(k) && bfs1.count(-k)) {
           nash = EqZero(bfs2[k] * bfs1[-k]);
         }
@@ -157,12 +162,12 @@ EnumMixedStrategySolver<T>::SolveDetailed(const Game &p_game) const
       if (nash) {
         MixedStrategyProfile<T> eqm(p_game->NewMixedStrategyProfile(static_cast<T>(0)));
         static_cast<Vector<T> &>(eqm) = static_cast<T>(0);
-        for (size_t k = 1; k <= p_game->Players()[1]->Strategies().size(); k++) {
+        for (size_t k = 1; k <= rows; k++) {
           if (bfs1.count(k)) {
             eqm[p_game->Players()[1]->Strategies()[k]] = -bfs1[k];
           }
         }
-        for (size_t k = 1; k <= p_game->Players()[2]->Strategies().size(); k++) {
+        for (size_t k = 1; k <= cols; k++) {
           if (bfs2.count(k)) {
             eqm[p_game->Players()[2]->Strategies()[k]] = -bfs2[k];
           }
