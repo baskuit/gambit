@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(gambit)
 
 set(GAMBIT_SOURCES
-    src/core/dvector.cc
     src/core/matrix.cc
-    src/core/pvector.cc
     src/core/sqmatrix.cc
     src/core/vector.cc
 

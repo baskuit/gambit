@@ -161,26 +161,6 @@ void SolveDetailed(int rows, int cols, Matrix1D &A, Matrix1D &B, double *row_str
 
                     col_strategy[k - 1] /= col_sum;
                 }
-                // eqm = eqm.Normalize();
-
-                // note: The keys give the mixed strategy associated with each node.
-                //       The keys should also keep track of the basis
-                //       As things stand now, two different bases could lead to
-                //       the same key... BAD!
-                // if (vert1id[i1] == 0) // This check doesnt do anything?
-                // {
-                //     id1++;
-                //     vert1id[i1] = id1;
-                //     solution->m_key2.push_back(eqm[p_game->GetPlayer(2)]); // m_key is list of vectors
-                // }
-                // if (vert2id[i2] == 0)
-                // {
-                //     id2++;
-                //     vert2id[i2] = id2;
-                //     solution->m_key1.push_back(eqm[p_game->GetPlayer(1)]);
-                // }
-                // solution->m_node1.push_back(vert2id[i2]); // m_node is list of int
-                // solution->m_node2.push_back(vert1id[i1]);
             }
         }
     }
