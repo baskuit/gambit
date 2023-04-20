@@ -44,7 +44,7 @@ void PrintCliques(const List<List<MixedStrategyProfile<T>>> &p_cliques,
     }
   }
 }
-
+#include <chrono>
 int main(int argc, char *argv[])
 {
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   std::istream *input_stream = &std::cin;
   std::ifstream file_stream;
 
-  file_stream.open("contrib/games/2x2.nfg");
+  file_stream.open("contrib/games/8x8.nfg");
   input_stream = &file_stream;
 
   Game game = ReadGame(*input_stream);
@@ -61,13 +61,17 @@ int main(int argc, char *argv[])
   std::shared_ptr<StrategyProfileRenderer<double>> renderer(
       new MixedStrategyCSVRenderer<double>(std::cout, numDecimals));
   EnumMixedStrategySolver<double> solver(renderer);
+
+  auto start = std::chrono::high_resolution_clock::now();
   std::shared_ptr<EnumMixedStrategySolution<double>> solution =
       solver.SolveDetailed(game);
+  auto end = std::chrono::high_resolution_clock::now();
+  double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1e6;
+  std::cout << "Elapsed time: " << elapsed << " seconds\n";
 
   List<List<MixedStrategyProfile<double>>> cliques =
       solution->GetCliques();
   PrintCliques(cliques, renderer);
-  
 
   return 0;
 }
