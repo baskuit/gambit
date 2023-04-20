@@ -3,7 +3,6 @@ project(gambit)
 
 set(GAMBIT_SOURCES
     src/core/matrix.cc
-    src/core/sqmatrix.cc
     src/core/vector.cc
 
     src/linalg/basis.cc
