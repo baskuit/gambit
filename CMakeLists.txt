@@ -7,8 +7,6 @@ set(GAMBIT_SOURCES
 
     src/linalg/basis.cc
     src/linalg/btableau.cc
-    src/linalg/lemketab.cc
-    src/linalg/lhtab.cc
     src/linalg/lpsolve.cc
     src/linalg/lptab.cc
     src/linalg/ludecomp.cc
