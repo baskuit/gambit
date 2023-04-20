@@ -24,14 +24,16 @@
 #include "core/matrix.imp"
 #include "btableau.imp"
 
-namespace Gambit {
+namespace Gambit
+{
 
-namespace linalg {
+    namespace linalg
+    {
 
-template class BaseTableau<double>;
+        template class BaseTableau<double>;
 
-template class TableauInterface<double>;
+        template class TableauInterface<double>;
 
-}  // end namespace Gambit::linalg
+    } // end namespace Gambit::linalg
 
-}  // end namespace Gambit
+} // end namespace Gambit

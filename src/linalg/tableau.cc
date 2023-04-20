@@ -22,155 +22,162 @@
 
 #include "tableau.h"
 
-namespace Gambit {
-
-namespace linalg {
-
-// ---------------------------------------------------------------------------
-//                   Tableau<double> method definitions
-// ---------------------------------------------------------------------------
-
-// Constructors and Destructor
- 
-Tableau<double>::Tableau(const Matrix<double> &A, const Vector<double> &b)
-  : TableauInterface<double>(A,b), B(*this), tmpcol(b.First(),b.Last())
+namespace Gambit
 {
-  Solve(b, solution);
-}
 
-Tableau<double>::Tableau(const Matrix<double> &A, const Array<int> &art, 
-			 const Vector<double> &b)
-  : TableauInterface<double>(A,art,b), B(*this), tmpcol(b.First(),b.Last())
-{
-  Solve(b, solution);
-}
+  namespace linalg
+  {
 
+    // ---------------------------------------------------------------------------
+    //                   Tableau<double> method definitions
+    // ---------------------------------------------------------------------------
 
-Tableau<double>::Tableau(const Tableau<double> &orig)
-  : TableauInterface<double>(orig), B(orig.B,*this), tmpcol(orig.tmpcol)
-{ }
+    // Constructors and Destructor
 
-Tableau<double>::~Tableau()
-= default;
+    Tableau<double>::Tableau(const Matrix<double> &A, const Vector<double> &b)
+        : TableauInterface<double>(A, b), B(*this), tmpcol(b.First(), b.Last())
+    {
+      Solve(b, solution);
+    }
 
-Tableau<double>& Tableau<double>::operator=(const Tableau<double> &orig)
-{
-  TableauInterface<double>::operator=(orig);
-  if(this!= &orig) {
-    B.Copy(orig.B,*this);
-    tmpcol = orig.tmpcol;
-  }
-  return *this;
-}
+    Tableau<double>::Tableau(const Matrix<double> &A, const Array<int> &art,
+                             const Vector<double> &b)
+        : TableauInterface<double>(A, art, b), B(*this), tmpcol(b.First(), b.Last())
+    {
+      Solve(b, solution);
+    }
 
-//
-// pivoting operations
-//
+    Tableau<double>::Tableau(const Tableau<double> &orig)
+        : TableauInterface<double>(orig), B(orig.B, *this), tmpcol(orig.tmpcol)
+    {
+    }
 
-bool Tableau<double>::CanPivot(int outlabel, int col) const
-{
-  const_cast<Tableau<double> *>(this)->SolveColumn(col, tmpcol);
-  double val = tmpcol[basis.Find(outlabel)];
-  if(val <=eps2 && val >= -eps2) return false;
-  return true;  
-}
+    Tableau<double>::~Tableau() = default;
 
-void Tableau<double>::Pivot(int outrow,int col)
-{
-  if(!RowIndex(outrow) || !ValidIndex(col)) throw BadPivot();
-
-  // int outlabel = Label(outrow);
-  // gout << "\noutrow:" << outrow;
-  // gout << " outlabel: " << outlabel;
-  // gout << " inlabel: " << col;
-  // BigDump(gout);
-  basis.Pivot(outrow,col);
-  
-  B.update(outrow, col);
-  Solve(*b, solution);
-  npivots++;
-  // BigDump(gout);
-}
-
-void Tableau<double>::SolveColumn(int col, Vector<double> &out)
-{
-  //** can we use tmpcol here, instead of allocating new vector?
-  Vector<double> tmpcol2(MinRow(),MaxRow());
-  GetColumn(col,tmpcol2);
-  Solve(tmpcol2,out);
-}
-
-void Tableau<double>::BasisVector(Vector<double> &out) const
-{
-  out= solution;
-}
-
-//
-// raw Tableau functions
-//
-
-void Tableau<double>::Refactor()
-{
-  B.refactor();
-  //** is re-solve necessary here?
-  Solve(*b, solution);
-}
-
-void Tableau<double>::SetRefactor(int n)
-{
-  B.SetRefactor(n);
-}
-
-void Tableau<double>::SetConst(const Vector<double> &bnew)
-{
-  if(bnew.First()!=b->First() || bnew.Last()!=b->Last())
-    throw DimensionException();
-  b=&bnew;
-  Solve(*b, solution);
-}
-
-//** this function is not currently used.  Drop it?
-void Tableau<double>::SetBasis(const Basis &in)
-{
-  basis= in;
-  B.refactor();
-  Solve(*b, solution);
-}
-
-void Tableau<double>::Solve(const Vector<double> &b, Vector<double> &x)
-{
-  B.solve(b,x);
-}
-
-void Tableau<double>::SolveT(const Vector<double> &c, Vector<double> &y)
-{
-  B.solveT(c,y);
-  //** gout << "\nTableau<double>::SolveT(), y: " << y;
-  //   gout << "\nc: " << c;
-}
-
-bool Tableau<double>::IsFeasible()
-{
-  //** is it really necessary to solve first here?
-  Solve(*b, solution);
-  for(int i=solution.First();i<=solution.Last();i++)
-    if(solution[i]>=eps2) return false;
-  return true;
-}
-
-bool Tableau<double>::IsLexMin()
-{
-  int i,j;
-  for(i=MinRow();i<=MaxRow();i++)
-    if(EqZero(solution[i]))
-      for(j=-MaxRow();j<Label(i);j++) if(j!=0){
-	SolveColumn(j,tmpcol);
-	if(LtZero(tmpcol[i]))
-	  return false;
+    Tableau<double> &Tableau<double>::operator=(const Tableau<double> &orig)
+    {
+      TableauInterface<double>::operator=(orig);
+      if (this != &orig)
+      {
+        B.Copy(orig.B, *this);
+        tmpcol = orig.tmpcol;
       }
-  return true;
-}
+      return *this;
+    }
 
-}  // end namespace Gambit::linalg
+    //
+    // pivoting operations
+    //
 
-}  // end namespace Gambit
+    bool Tableau<double>::CanPivot(int outlabel, int col) const
+    {
+      const_cast<Tableau<double> *>(this)->SolveColumn(col, tmpcol);
+      double val = tmpcol[basis.Find(outlabel)];
+      if (val <= eps2 && val >= -eps2)
+        return false;
+      return true;
+    }
+
+    void Tableau<double>::Pivot(int outrow, int col)
+    {
+      if (!RowIndex(outrow) || !ValidIndex(col))
+        throw BadPivot();
+
+      // int outlabel = Label(outrow);
+      // gout << "\noutrow:" << outrow;
+      // gout << " outlabel: " << outlabel;
+      // gout << " inlabel: " << col;
+      // BigDump(gout);
+      basis.Pivot(outrow, col);
+
+      B.update(outrow, col);
+      Solve(*b, solution);
+      npivots++;
+      // BigDump(gout);
+    }
+
+    void Tableau<double>::SolveColumn(int col, Vector<double> &out)
+    {
+      //** can we use tmpcol here, instead of allocating new vector?
+      Vector<double> tmpcol2(MinRow(), MaxRow());
+      GetColumn(col, tmpcol2);
+      Solve(tmpcol2, out);
+    }
+
+    void Tableau<double>::BasisVector(Vector<double> &out) const
+    {
+      out = solution;
+    }
+
+    //
+    // raw Tableau functions
+    //
+
+    void Tableau<double>::Refactor()
+    {
+      B.refactor();
+      //** is re-solve necessary here?
+      Solve(*b, solution);
+    }
+
+    void Tableau<double>::SetRefactor(int n)
+    {
+      B.SetRefactor(n);
+    }
+
+    void Tableau<double>::SetConst(const Vector<double> &bnew)
+    {
+      if (bnew.First() != b->First() || bnew.Last() != b->Last())
+        throw DimensionException();
+      b = &bnew;
+      Solve(*b, solution);
+    }
+
+    //** this function is not currently used.  Drop it?
+    void Tableau<double>::SetBasis(const Basis &in)
+    {
+      basis = in;
+      B.refactor();
+      Solve(*b, solution);
+    }
+
+    void Tableau<double>::Solve(const Vector<double> &b, Vector<double> &x)
+    {
+      B.solve(b, x);
+    }
+
+    void Tableau<double>::SolveT(const Vector<double> &c, Vector<double> &y)
+    {
+      B.solveT(c, y);
+      //** gout << "\nTableau<double>::SolveT(), y: " << y;
+      //   gout << "\nc: " << c;
+    }
+
+    bool Tableau<double>::IsFeasible()
+    {
+      //** is it really necessary to solve first here?
+      Solve(*b, solution);
+      for (int i = solution.First(); i <= solution.Last(); i++)
+        if (solution[i] >= eps2)
+          return false;
+      return true;
+    }
+
+    bool Tableau<double>::IsLexMin()
+    {
+      int i, j;
+      for (i = MinRow(); i <= MaxRow(); i++)
+        if (EqZero(solution[i]))
+          for (j = -MaxRow(); j < Label(i); j++)
+            if (j != 0)
+            {
+              SolveColumn(j, tmpcol);
+              if (LtZero(tmpcol[i]))
+                return false;
+            }
+      return true;
+    }
+
+  } // end namespace Gambit::linalg
+
+} // end namespace Gambit

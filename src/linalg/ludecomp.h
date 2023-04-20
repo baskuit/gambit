@@ -26,160 +26,153 @@
 #include "gambit.h"
 #include "basis.h"
 
-namespace Gambit {
+namespace Gambit
+{
 
-namespace linalg {
-    
-template <class T> class Tableau;
+  namespace linalg
+  {
 
-// ---------------------------------------------------------------------------
-// Class EtaMatrix
-// ---------------------------------------------------------------------------
+    template <class T>
+    class Tableau;
 
-template <class T> class EtaMatrix {
-  public:
-  int col;
-  Vector<T> etadata;
-  
-  EtaMatrix(int c, Vector<T> &v) : col(c), etadata(v) {}
+    // ---------------------------------------------------------------------------
+    // Class EtaMatrix
+    // ---------------------------------------------------------------------------
 
-  // required for list class
-  bool operator==(const EtaMatrix<T> &) const;
-  bool operator!=(const EtaMatrix<T> &) const;
-};
+    template <class T>
+    class EtaMatrix
+    {
+    public:
+      int col;
+      Vector<T> etadata;
 
-// ---------------------------------------------------------------------------
-// Class LUdecomp
-// ---------------------------------------------------------------------------
+      EtaMatrix(int c, Vector<T> &v) : col(c), etadata(v) {}
 
-template <class T> class LUdecomp {
-private:
-  Tableau<T> &tab;
-  Basis &basis;
+      // required for list class
+      bool operator==(const EtaMatrix<T> &) const;
+      bool operator!=(const EtaMatrix<T> &) const;
+    };
 
-  List< EtaMatrix<T> > L;
-  List< EtaMatrix<T> > U;
-  List< EtaMatrix<T> > E;
-  List< int > P;
+    // ---------------------------------------------------------------------------
+    // Class LUdecomp
+    // ---------------------------------------------------------------------------
 
-  Vector<T> scratch1; // scratch vectors so we don't reallocate them
-  Vector<T> scratch2; // everytime we do something.
+    template <class T>
+    class LUdecomp
+    {
+    private:
+      Tableau<T> &tab;
+      Basis &basis;
 
-  int refactor_number;
-  int iterations;
-  int total_operations;
+      List<EtaMatrix<T>> L;
+      List<EtaMatrix<T>> U;
+      List<EtaMatrix<T>> E;
+      List<int> P;
 
-  const LUdecomp<T> *parent;
-  int copycount;
+      Vector<T> scratch1; // scratch vectors so we don't reallocate them
+      Vector<T> scratch2; // everytime we do something.
 
-  // don't use this copy constructor
-  LUdecomp( const LUdecomp<T> &a);
-  // don't use the equals operator, use the Copy function instead
-  LUdecomp<T>& operator=(const LUdecomp<T>&);
+      int refactor_number;
+      int iterations;
+      int total_operations;
 
+      const LUdecomp<T> *parent;
+      int copycount;
 
+      // don't use this copy constructor
+      LUdecomp(const LUdecomp<T> &a);
+      // don't use the equals operator, use the Copy function instead
+      LUdecomp<T> &operator=(const LUdecomp<T> &);
 
-public:
-  class BadPivot : public Exception  {
-  public:
-    ~BadPivot() noexcept override = default;
-    const char *what() const noexcept override { return "Bad pivot in LUdecomp"; }
-  };
-  class BadCount : public Exception  {
-  public:
-    ~BadCount() noexcept override = default;
-    const char *what() const noexcept override { return "Bad reference count in LUdecomp"; }
-  };
+    public:
+      class BadPivot : public Exception
+      {
+      public:
+        ~BadPivot() noexcept override = default;
+        const char *what() const noexcept override { return "Bad pivot in LUdecomp"; }
+      };
+      class BadCount : public Exception
+      {
+      public:
+        ~BadCount() noexcept override = default;
+        const char *what() const noexcept override { return "Bad reference count in LUdecomp"; }
+      };
 
-  // ------------------------
-  // Constructors, Destructor
-  // ------------------------
-    
+      // ------------------------
+      // Constructors, Destructor
+      // ------------------------
 
-  // copy constructor
-  // note:  Copying will fail an assertion if you try to update or delete
-  //        the original before the copy has been deleted, refactored
-  //        Or set to something else.
-  LUdecomp( const LUdecomp<T> &, Tableau<T> & );
+      // copy constructor
+      // note:  Copying will fail an assertion if you try to update or delete
+      //        the original before the copy has been deleted, refactored
+      //        Or set to something else.
+      LUdecomp(const LUdecomp<T> &, Tableau<T> &);
 
-  // Decompose given matrix
-  explicit LUdecomp( Tableau<T> &, int rfac = 0 );
+      // Decompose given matrix
+      explicit LUdecomp(Tableau<T> &, int rfac = 0);
 
-  // Destructor
-  ~LUdecomp();
+      // Destructor
+      ~LUdecomp();
 
+      // --------------------
+      // Public Members
+      // --------------------
 
-  // --------------------
-  // Public Members
-  // --------------------
+      // copies the LUdecomp given (expect for the basis &).
+      void Copy(const LUdecomp<T> &, Tableau<T> &);
 
-  // copies the LUdecomp given (expect for the basis &).
-  void Copy( const LUdecomp<T> &, Tableau<T> & );
+      // replace (update) the column given with the vector given.
+      void update(int, int matcol); // matcol is the column number in the matrix
 
-  // replace (update) the column given with the vector given.
-  void update( int, int matcol ); // matcol is the column number in the matrix
+      // refactor
+      void refactor();
 
-  // refactor 
-  void refactor();
-  
-  // solve: Bk d = a
-  void solve (const Vector<T> &, Vector<T> & ) const;
+      // solve: Bk d = a
+      void solve(const Vector<T> &, Vector<T> &) const;
 
-  // solve: y Bk = c
-  void solveT( const Vector<T> &, Vector <T> & ) const;
+      // solve: y Bk = c
+      void solveT(const Vector<T> &, Vector<T> &) const;
 
-  // set number of etamatrices added before refactoring;
-  // if number is set to zero, refactoring is done automatically.
-  // if number is < 0, no refactoring is done;
-  void SetRefactor( int );
+      // set number of etamatrices added before refactoring;
+      // if number is set to zero, refactoring is done automatically.
+      // if number is < 0, no refactoring is done;
+      void SetRefactor(int);
 
-  //-------------------
-  // Private Members
-  //-------------------
+      //-------------------
+      // Private Members
+      //-------------------
 
-private:
-  
-  void FactorBasis();
+    private:
+      void FactorBasis();
 
-  void GaussElem( Matrix<T> &, int, int );
+      void GaussElem(Matrix<T> &, int, int);
 
-  bool CheckBasis();
-  bool RefactorCheck();
+      bool CheckBasis();
+      bool RefactorCheck();
 
-  void BTransE( Vector<T> & ) const;
-  void FTransE( Vector<T> & ) const;
-  void BTransU( Vector<T> & ) const;
-  void FTransU( Vector<T> & ) const;
-  void LPd_Trans( Vector<T> & ) const;
-  void yLP_Trans( Vector<T> & ) const;
+      void BTransE(Vector<T> &) const;
+      void FTransE(Vector<T> &) const;
+      void BTransU(Vector<T> &) const;
+      void FTransU(Vector<T> &) const;
+      void LPd_Trans(Vector<T> &) const;
+      void yLP_Trans(Vector<T> &) const;
 
-  void VectorEtaSolve( const Vector<T> &v,  
-		      const EtaMatrix<T> &, 
-		      Vector<T> &y ) const;
+      void VectorEtaSolve(const Vector<T> &v,
+                          const EtaMatrix<T> &,
+                          Vector<T> &y) const;
 
-  void EtaVectorSolve( const Vector<T> &v, 
-		      const EtaMatrix<T> &,
-		      Vector<T> &d ) const;
+      void EtaVectorSolve(const Vector<T> &v,
+                          const EtaMatrix<T> &,
+                          Vector<T> &d) const;
 
-  void yLP_mult( const Vector<T> &y, int j, Vector<T> &) const;
+      void yLP_mult(const Vector<T> &y, int j, Vector<T> &) const;
 
-  void LPd_mult( Vector<T> &d, int j, Vector<T> &) const;
+      void LPd_mult(Vector<T> &d, int j, Vector<T> &) const;
 
+    }; // end of class LUdecomp
 
-};  // end of class LUdecomp
+  } // end namespace Gambit::linalg
 
-}  // end namespace Gambit::linalg
+} // end namespace Gambit
 
-}  // end namespace Gambit
- 
 #endif // LUDECOMP_H
-
-
-
-
-
-
-
-
-
-

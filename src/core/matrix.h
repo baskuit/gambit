@@ -26,87 +26,86 @@
 #include "recarray.h"
 #include "vector.h"
 
-namespace Gambit {
+namespace Gambit
+{
 
-template <class T> 
-Vector<T> operator*(const Vector<T> &, const Matrix<T> &);
+  template <class T>
+  Vector<T> operator*(const Vector<T> &, const Matrix<T> &);
 
-template <class T> class Matrix : public RectArray<T> {
-friend Vector<T> operator*<>(const Vector<T> &, const Matrix<T> &);
-public:
-  /// @name Lifecycle
-  //@{
-  Matrix();
-  Matrix(unsigned int rows, unsigned int cols);
-  Matrix(unsigned int rows, unsigned int cols, int minrows);
-  Matrix(int rl, int rh, int cl, int ch);
-  Matrix(const Matrix<T> &);
-  ~Matrix() override;
+  template <class T>
+  class Matrix : public RectArray<T>
+  {
+    friend Vector<T> operator*<>(const Vector<T> &, const Matrix<T> &);
 
-  Matrix<T> &operator=(const Matrix<T> &);
-  Matrix<T> &operator=(const T &);
-  //@}
+  public:
+    /// @name Lifecycle
+    //@{
+    Matrix();
+    Matrix(unsigned int rows, unsigned int cols);
+    Matrix(unsigned int rows, unsigned int cols, int minrows);
+    Matrix(int rl, int rh, int cl, int ch);
+    Matrix(const Matrix<T> &);
+    ~Matrix() override;
 
-  /// @name Extracting rows and columns
-  //@{
-  Vector<T> Row(int) const;
-  Vector<T> Column(int) const;
-  //@}
+    Matrix<T> &operator=(const Matrix<T> &);
+    Matrix<T> &operator=(const T &);
+    //@}
 
-  /// @name Comparison operators
-  //@{
-  bool operator==(const Matrix<T> &) const;
-  bool operator!=(const Matrix<T> &) const;
-  bool operator==(const T &) const;
-  bool operator!=(const T &) const;
-  //@}
+    /// @name Extracting rows and columns
+    //@{
+    Vector<T> Row(int) const;
+    Vector<T> Column(int) const;
+    //@}
 
-  /// @name Additive operators
-  //@{
-  Matrix<T> operator+(const Matrix<T> &) const;
-  Matrix<T> operator-(const Matrix<T> &) const;
-  Matrix<T> &operator+=(const Matrix<T> &);
-  Matrix<T> &operator-=(const Matrix<T> &);
+    /// @name Comparison operators
+    //@{
+    bool operator==(const Matrix<T> &) const;
+    bool operator!=(const Matrix<T> &) const;
+    bool operator==(const T &) const;
+    bool operator!=(const T &) const;
+    //@}
 
-  Matrix<T> operator-();
-  //@}
+    /// @name Additive operators
+    //@{
+    Matrix<T> operator+(const Matrix<T> &) const;
+    Matrix<T> operator-(const Matrix<T> &) const;
+    Matrix<T> &operator+=(const Matrix<T> &);
+    Matrix<T> &operator-=(const Matrix<T> &);
 
+    Matrix<T> operator-();
+    //@}
 
-  /// @name Multiplicative operators
-  //@{
-  /// "in-place" column multiply
-  void CMultiply(const Vector<T> &, Vector<T> &) const;
-  /// "in-place" row (transposed) multiply
-  void RMultiply(const Vector<T> &, Vector<T> &) const;
-  Matrix<T> operator*(const Matrix<T> &) const;
-  Vector<T> operator*(const Vector<T> &) const;
-  Matrix<T> operator*(const T &) const;
-  Matrix<T> &operator*=(const Matrix<T> &);
-  Matrix<T> &operator*=(const T &);
+    /// @name Multiplicative operators
+    //@{
+    /// "in-place" column multiply
+    void CMultiply(const Vector<T> &, Vector<T> &) const;
+    /// "in-place" row (transposed) multiply
+    void RMultiply(const Vector<T> &, Vector<T> &) const;
+    Matrix<T> operator*(const Matrix<T> &) const;
+    Vector<T> operator*(const Vector<T> &) const;
+    Matrix<T> operator*(const T &) const;
+    Matrix<T> &operator*=(const Matrix<T> &);
+    Matrix<T> &operator*=(const T &);
 
-  Matrix<T> operator/(const T &) const;
-  Matrix<T> &operator/=(const T &);
+    Matrix<T> operator/(const T &) const;
+    Matrix<T> &operator/=(const T &);
 
-  /// Kronecker product
-  Matrix<T> operator&(const Matrix<T> &) const;
-  //@
+    /// Kronecker product
+    Matrix<T> operator&(const Matrix<T> &) const;
+    //@
 
-  /// @name Other operations
-  //@{
-  Matrix<T> Transpose() const;
-  /// Set matrix to identity matrix
-  void MakeIdent();  
-  void Pivot(int, int);
-  //@}
-};
+    /// @name Other operations
+    //@{
+    Matrix<T> Transpose() const;
+    /// Set matrix to identity matrix
+    void MakeIdent();
+    void Pivot(int, int);
+    //@}
+  };
 
-template <class T> 
-Vector<T> operator*(const Vector<T> &, const Matrix<T> &);
+  template <class T>
+  Vector<T> operator*(const Vector<T> &, const Matrix<T> &);
 
 } // end namespace Gambit
 
-#endif  // LIBGAMBIT_MATRIX_H
-
-
-
-
+#endif // LIBGAMBIT_MATRIX_H

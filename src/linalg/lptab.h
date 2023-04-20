@@ -20,68 +20,74 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //
 
-#ifndef LPTAB_H  
+#ifndef LPTAB_H
 #define LPTAB_H
 
 #include "tableau.h"
 
-namespace Gambit {
+namespace Gambit
+{
 
-namespace linalg {
+  namespace linalg
+  {
 
-template <class T> class LPTableau : public Tableau<T> {
-private:
-  Vector<T> dual;
-  Array<T> unitcost;
-  Array<T> cost;
-  Array<bool> UB,LB;  // does col have upper/lower bound?
-  Array<T> ub,lb;   // upper/lower bound
-  
-  void SolveDual();
-public:
-  class BadPivot : public Exception  {
-  public:
-    ~BadPivot() noexcept override = default;
-    const char *what() const noexcept override { return "Bad pivot in LPTableau."; }
-  };
-  LPTableau(const Matrix<T> &A, const Vector<T> &b); 
-  LPTableau(const Matrix<T> &A, const Array<int> &art, const Vector<T> &b); 
-  LPTableau(const LPTableau<T>&);
-  virtual ~LPTableau() = default;
-  
-  LPTableau<T>& operator=(const LPTableau<T>&);
-  
+    template <class T>
+    class LPTableau : public Tableau<T>
+    {
+    private:
+      Vector<T> dual;
+      Array<T> unitcost;
+      Array<T> cost;
+      Array<bool> UB, LB; // does col have upper/lower bound?
+      Array<T> ub, lb;    // upper/lower bound
+
+      void SolveDual();
+
+    public:
+      class BadPivot : public Exception
+      {
+      public:
+        ~BadPivot() noexcept override = default;
+        const char *what() const noexcept override { return "Bad pivot in LPTableau."; }
+      };
+      LPTableau(const Matrix<T> &A, const Vector<T> &b);
+      LPTableau(const Matrix<T> &A, const Array<int> &art, const Vector<T> &b);
+      LPTableau(const LPTableau<T> &);
+      virtual ~LPTableau() = default;
+
+      LPTableau<T> &operator=(const LPTableau<T> &);
+
       // cost information
-  void SetCost(const Vector<T>& ); // unit column cost := 0
-  void SetCost(const Vector<T>&, const Vector<T>& );
-  Vector<T> GetCost() const;
-  Vector<T> GetUnitCost() const;
-  T TotalCost(); // cost of current solution
-  T RelativeCost(int) const; // negative index convention
-  void RelativeCostVector(Vector<T> &, Vector<T> &); 
-  void DualVector(Vector<T> &) const; // column vector
-      // Redefined functions
-  void Refactor();
-  void Pivot(int outrow,int col);
-  void ReversePivots(List<Array<int> > &);
-  bool IsReversePivot(int i, int j);
-  void DualReversePivots(List<Array<int> > &);
-  bool IsDualReversePivot(int i, int j);
-  BFS<T> DualBFS() const;
+      void SetCost(const Vector<T> &); // unit column cost := 0
+      void SetCost(const Vector<T> &, const Vector<T> &);
+      Vector<T> GetCost() const;
+      Vector<T> GetUnitCost() const;
+      T TotalCost();             // cost of current solution
+      T RelativeCost(int) const; // negative index convention
+      void RelativeCostVector(Vector<T> &, Vector<T> &);
+      void DualVector(Vector<T> &) const; // column vector
+                                          // Redefined functions
+      void Refactor();
+      void Pivot(int outrow, int col);
+      void ReversePivots(List<Array<int>> &);
+      bool IsReversePivot(int i, int j);
+      void DualReversePivots(List<Array<int>> &);
+      bool IsDualReversePivot(int i, int j);
+      BFS<T> DualBFS() const;
 
-  // returns the label of the index of the last artificial variable
-  int LastLabel( );
+      // returns the label of the index of the last artificial variable
+      int LastLabel();
 
-  // select Basis elements according to Tableau rows and cols
-  void BasisSelect(const Array<T>&rowv, Vector<T> &colv) const;
+      // select Basis elements according to Tableau rows and cols
+      void BasisSelect(const Array<T> &rowv, Vector<T> &colv) const;
 
-  // as above, but unit column elements nonzero
-  void BasisSelect(const Array<T>&unitv, const Array<T>&rowv,
-		   Vector<T>&colv) const; 
-};
+      // as above, but unit column elements nonzero
+      void BasisSelect(const Array<T> &unitv, const Array<T> &rowv,
+                       Vector<T> &colv) const;
+    };
 
-}  // end namespace Gambit::linalg
+  } // end namespace Gambit::linalg
 
-}  // end namespace Gambit
- 
-#endif     // LPTAB_H
+} // end namespace Gambit
+
+#endif // LPTAB_H

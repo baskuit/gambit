@@ -26,57 +26,66 @@
 #include "gambit.h"
 #include <map>
 
-namespace Gambit  {
+namespace Gambit
+{
 
-namespace linalg  {
-  
-template <class T> class BFS {
-private:
-  std::map<int, T> m_map;
-  T m_default;
+  namespace linalg
+  {
 
-public:
-  // Lifecycle
-  BFS() : m_default(0) { }
-  ~BFS() = default;
+    template <class T>
+    class BFS
+    {
+    private:
+      std::map<int, T> m_map;
+      T m_default;
 
-  // define two BFS's to be equal if their bases are equal
-  bool operator==(const BFS &M) const {
-    if (m_map.size() != M.m_map.size())  return false;
+    public:
+      // Lifecycle
+      BFS() : m_default(0) {}
+      ~BFS() = default;
 
-    for (typename std::map<int, T>::const_iterator iter = m_map.begin();
-	 iter != m_map.end(); iter++) {
-      if (M.m_map.count((*iter).first) == 0) {
-	return false;
+      // define two BFS's to be equal if their bases are equal
+      bool operator==(const BFS &M) const
+      {
+        if (m_map.size() != M.m_map.size())
+          return false;
+
+        for (typename std::map<int, T>::const_iterator iter = m_map.begin();
+             iter != m_map.end(); iter++)
+        {
+          if (M.m_map.count((*iter).first) == 0)
+          {
+            return false;
+          }
+        }
+        return true;
       }
-    }
-    return true;
-  }
-  bool operator!=(const BFS &M) const  { return !(*this == M); }
+      bool operator!=(const BFS &M) const { return !(*this == M); }
 
-  // Provide map-like operations
-  int count(int key) const { return (m_map.count(key) > 0); }
+      // Provide map-like operations
+      int count(int key) const { return (m_map.count(key) > 0); }
 
-  void insert(int key, const T &value) {
-    m_map.erase(key);
-    m_map.insert(std::pair<int, T>(key, value));
-  }
+      void insert(int key, const T &value)
+      {
+        m_map.erase(key);
+        m_map.insert(std::pair<int, T>(key, value));
+      }
 
-  const T &operator[](int key) const {
-    if (m_map.count(key) == 1) {
-      return const_cast<std::map<int, T> &>(m_map)[key];
-    }
-    else {
-      return m_default;
-    }
-  }
-};
+      const T &operator[](int key) const
+      {
+        if (m_map.count(key) == 1)
+        {
+          return const_cast<std::map<int, T> &>(m_map)[key];
+        }
+        else
+        {
+          return m_default;
+        }
+      }
+    };
 
-}  // end namespace Gambit::linalg
+  } // end namespace Gambit::linalg
 
-}  // end namespace Gambit
- 
-#endif   // BFS_H
+} // end namespace Gambit
 
-
-
+#endif // BFS_H

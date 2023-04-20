@@ -25,77 +25,77 @@
 
 #include "gambit.h"
 
-namespace Gambit {
+namespace Gambit
+{
 
-namespace linalg {
+  namespace linalg
+  {
 
-//---------------------------------------------------------------------------
-// Class Basis
-//---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
+    // Class Basis
+    //---------------------------------------------------------------------------
 
-class Basis {
+    class Basis
+    {
 
-private:
-  Array<int> basis;        // current members of basis (neg for slacks)
-  Array<int> cols;         // location of col in basis (0 if not in basis)
-  Array<int> slacks;       // location of slacks in basis
-  Array<bool> colBlocked;  
-  Array<bool> rowBlocked;
-  bool IsBasisIdent;
+    private:
+      Array<int> basis;  // current members of basis (neg for slacks)
+      Array<int> cols;   // location of col in basis (0 if not in basis)
+      Array<int> slacks; // location of slacks in basis
+      Array<bool> colBlocked;
+      Array<bool> rowBlocked;
+      bool IsBasisIdent;
 
-public:
-  //-------------------------------------------
-  // Constructors, Destructor, Operators
-  //-------------------------------------------
-  
-  Basis(int first, int last, int firstlabel, int lastlabel);
-  Basis(const Basis &);
-  virtual ~Basis();
-  
-  Basis& operator=(const Basis&);
+    public:
+      //-------------------------------------------
+      // Constructors, Destructor, Operators
+      //-------------------------------------------
 
-  //------------------------------
-  // Public Members
-  //------------------------------
-  
-  int First() const;         // First basis index
-  int Last() const;          // Last  basis index
-  int MinCol() const;    // First Column label
-  int MaxCol() const;     // Last Column label
+      Basis(int first, int last, int firstlabel, int lastlabel);
+      Basis(const Basis &);
+      virtual ~Basis();
 
-  bool IsRegColumn( int col ) const;
-  bool IsSlackColumn( int col ) const; 
+      Basis &operator=(const Basis &);
 
-  //remove outindex, insert label, return outlabel
-  int Pivot(int outindex, int col); 
+      //------------------------------
+      // Public Members
+      //------------------------------
 
-  // return true iff label is a Basis member
-  bool Member(int label) const;
+      int First() const;  // First basis index
+      int Last() const;   // Last  basis index
+      int MinCol() const; // First Column label
+      int MaxCol() const; // Last Column label
 
-  // finds Basis index corresponding to label number,
-  int Find(int label) const;
+      bool IsRegColumn(int col) const;
+      bool IsSlackColumn(int col) const;
 
-  // finds label of variable corresponding to Basis index
-  int Label(int index) const;
+      // remove outindex, insert label, return outlabel
+      int Pivot(int outindex, int col);
 
-  // marks/unmarks label to block it from entering basis
-  void Mark(int label);
-  void UnMark(int label);
+      // return true iff label is a Basis member
+      bool Member(int label) const;
 
-  // returns true if label is blocked from entering basis
-  bool IsBlocked(int label) const;
+      // finds Basis index corresponding to label number,
+      int Find(int label) const;
 
-  // Check if Basis is Ident
-  virtual void CheckBasis();
-  // returns whether the basis is the identity matrix
-  bool IsIdent() const { return IsBasisIdent; }
+      // finds label of variable corresponding to Basis index
+      int Label(int index) const;
 
+      // marks/unmarks label to block it from entering basis
+      void Mark(int label);
+      void UnMark(int label);
 
-};
+      // returns true if label is blocked from entering basis
+      bool IsBlocked(int label) const;
 
-}  // end namespace Gambit::linalg
- 
-}  // end namespace Gambit
- 
+      // Check if Basis is Ident
+      virtual void CheckBasis();
+      // returns whether the basis is the identity matrix
+      bool IsIdent() const { return IsBasisIdent; }
+    };
+
+  } // end namespace Gambit::linalg
+
+} // end namespace Gambit
+
 #endif // BASIS_H
-

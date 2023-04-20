@@ -22,11 +22,12 @@
 
 #include "lpsolve.imp"
 
-namespace Gambit {
-namespace linalg {
-   
-template class LPSolve<double>;
+namespace Gambit
+{
+    namespace linalg
+    {
 
-}  // end namespace Gambit::linalg
-}  // end namespace Gambit
-  
+        template class LPSolve<double>;
+
+    } // end namespace Gambit::linalg
+} // end namespace Gambit

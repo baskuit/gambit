@@ -23,14 +23,15 @@
 #include "gambit.h"
 #include "matrix.imp"
 
-namespace Gambit {
+namespace Gambit
+{
 
-template class Matrix<double>;
-template class Matrix<int>;
+	template class Matrix<double>;
+	template class Matrix<int>;
 
-template Vector<double> operator*(const Vector<double> &,
-				  const Matrix<double> &);
-template Vector<int> operator*(const Vector<int> &,
-			       const Matrix<int> &);
+	template Vector<double> operator*(const Vector<double> &,
+									  const Matrix<double> &);
+	template Vector<int> operator*(const Vector<int> &,
+								   const Matrix<int> &);
 
-}  // end namespace Gambit
+} // end namespace Gambit
