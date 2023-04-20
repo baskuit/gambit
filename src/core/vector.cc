@@ -26,6 +26,6 @@
 template class Gambit::Vector<int>;
 template class Gambit::Vector<long>;
 template class Gambit::Vector<double>;
-template class Gambit::Vector<Gambit::Integer>;
-template class Gambit::Vector<Gambit::Rational>;
+// template class Gambit::Vector<Gambit::Integer>;
+// template class Gambit::Vector<Gambit::Rational>;
 

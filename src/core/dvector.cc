@@ -24,5 +24,3 @@
 #include "dvector.imp"
 
 template class Gambit::DVector<double>;
-template class Gambit::DVector<Gambit::Rational>;
-

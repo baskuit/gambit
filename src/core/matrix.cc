@@ -26,16 +26,10 @@
 namespace Gambit {
 
 template class Matrix<double>;
-template class Matrix<Rational>;
-template class Matrix<Integer>;
 template class Matrix<int>;
 
 template Vector<double> operator*(const Vector<double> &,
 				  const Matrix<double> &);
-template Vector<Rational> operator*(const Vector<Rational> &,
-				    const Matrix<Rational> &);
-template Vector<Integer> operator*(const Vector<Integer> &,
-				   const Matrix<Integer> &);
 template Vector<int> operator*(const Vector<int> &,
 			       const Matrix<int> &);
 

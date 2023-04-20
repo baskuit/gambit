@@ -2,9 +2,7 @@
 
 #include <algorithm>
 #include "gambit.h"
-#include "solvers/linalg/vertenum.imp"
-// #include "solvers/enummixed/enummixed.h"
-// #include "solvers/enummixed/clique.h"
+#include "linalg/vertenum.imp"
 
 class Matrix1D
 {
@@ -33,8 +31,6 @@ public:
         return *std::min_element(data, data + entries);
     }
 };
-
-#include "solvers/enummixed/enummixed.h"
 
 bool EqZero(const double &x)
 {

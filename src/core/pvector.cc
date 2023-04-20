@@ -25,5 +25,4 @@
 
 template class Gambit::PVector<int>;
 template class Gambit::PVector<double>;
-template class Gambit::PVector<Gambit::Rational>;
 

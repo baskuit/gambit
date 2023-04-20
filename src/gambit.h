@@ -123,18 +123,17 @@ public:
 #include "core/vector.h"
 #include "core/matrix.h"
 
-#include "core/rational.h"
+// #include "core/rational.h"
 
 
-#include "games/game.h"
-#include "games/writer.h"
+// #include "games/game.h"
 
-#include "games/behavspt.h"
-#include "games/behav.h"
-#include "games/behavitr.h"
+// #include "games/behavspt.h"
+// #include "games/behav.h"
+// #include "games/behavitr.h"
 
-#include "games/stratspt.h"
-#include "games/mixed.h"
-#include "games/stratitr.h"
+// #include "games/stratspt.h"
+// #include "games/mixed.h"
+// #include "games/stratitr.h"
 
 #endif // LIBGAMBIT_H

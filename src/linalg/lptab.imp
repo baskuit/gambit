@@ -65,31 +65,6 @@ LPTableau<T>& LPTableau<T>::operator=(const LPTableau<T> &orig)
 // cost-based functions
 
 template<>
-void LPTableau<Rational>::SetCost(const Vector<Rational>& c)
-{
-  int i;
-  if(cost.First()==c.First() && cost.Last()==c.Last()) {
-    for(i=cost.First();i<=cost.Last();i++) cost[i] = c[i]*(Rational)Tableau<Rational>::TotDenom();
-    for(i=unitcost.First();i<=unitcost.Last();i++) unitcost[i] = (Rational)0;
-    Refactor();
-    SolveDual();
-    return;
-  }
-  if(c.First()!=cost.First()) throw DimensionException();
-  if(c.Last()!=(cost.Last()+unitcost.Length())) throw DimensionException();
-  for(i=c.First();i<=cost.Last();i++)
-    cost[i]=c[i]*(Rational)Tableau<Rational>::TotDenom();
-  for(i=unitcost.First();i<=unitcost.Last();i++)
-    unitcost[i]=c[cost.Length()+i-unitcost.First()+1];
-  // gout << "\nc: " << c.First() << " " << c.Last() << " " << c;
-  // gout << "\ncost: " << cost.First() << " " << cost.Last() << " " << cost;
-  // gout << "\nunit: " << unitcost.First() << " " << unitcost.Last() << " " << unitcost;
-  //** added for Rational
-  Refactor();
-  SolveDual();
-}
-
-template<>
 void LPTableau<double>::SetCost(const Vector<double>& c)
 {
   int i;
@@ -153,30 +128,10 @@ template<> double LPTableau<double>::TotalCost()
   return tmpcol*solution;
 }
 
-template<> Rational LPTableau<Rational>::TotalCost()
-{
-  Vector<Rational> tmpcol(MinRow(),MaxRow());
-  Vector<Rational> sol(MinRow(),MaxRow());
-  BasisSelect(unitcost,cost,tmpcol);
-  BasisVector(sol);
-  for(int i=tmpcol.First();i<=tmpcol.Last();i++)
-    if(Label(i)>0)tmpcol[i]/=(Rational)Tableau<Rational>::TotDenom();
-
-  return tmpcol*sol;
-}
-
 template<>
 void LPTableau<double>::DualVector(Vector<double> &L) const
 {
   L= dual;
-}
-
-template<>
-void LPTableau<Rational>::DualVector(Vector<Rational> &out) const
-{
-  out= dual;
-  //  for(int i=out.First();i<=out.Last();i++) 
-  //  if(Label(i)>=0) out[i]*=TotDenom();
 }
 
 template <class T>

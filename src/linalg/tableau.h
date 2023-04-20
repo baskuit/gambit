@@ -77,62 +77,6 @@ private:
   mutable Vector<double> tmpcol;
 };
 
-
-template<>
-class Tableau<Rational> : public TableauInterface<Rational>{
-private:
-  int remap(int col_index) const;  // aligns the column indexes
-  Matrix<Rational> GetInverse();
-
-  Matrix<Integer> Tabdat;  // This caries the full tableau
-  Vector<Integer> Coeff;   // and coeffieient vector
-  Integer totdenom;  // This carries the denominator for Q data or 1 for Z
-  Integer denom;  // This is the denominator for the simplex
-
-  mutable Vector<Rational> tmpcol; // temporary column vector, to avoid allocation
-
-  void MySolveColumn(int, Vector<Rational> &);  // column in new basis 
-
-protected:
-  Array<int> nonbasic;     //** nonbasic variables -- should be moved to Basis
-
-public:
-  class BadDenom : public Exception  {
-  public:
-    ~BadDenom() noexcept override = default;
-    const char *what() const noexcept override { return "Bad denominator in Tableau"; }
-  };
-      // constructors and destructors
-  Tableau(const Matrix<Rational> &A, const Vector<Rational> &b); 
-  Tableau(const Matrix<Rational> &A, const Array<int> &art, 
-	  const Vector<Rational> &b); 
-  Tableau(const Tableau<Rational>&);
-  ~Tableau() override;
-  
-  Tableau<Rational>& operator=(const Tableau<Rational>&);
-  
-  // pivoting
-  bool CanPivot(int outgoing, int incoming) const override;
-  void Pivot(int outrow, int col) override; // pivot -- outgoing is row, incoming is column
-  void SolveColumn(int, Vector<Rational> &) override;  // column in new basis
-  void GetColumn(int, Vector<Rational> &) const;  // column in new basis
-  
-  // raw Tableau functions
-
-  void Refactor() override;
-  void SetRefactor(int) override;
-
-  void SetConst(const Vector<Rational> &bnew);
-  void SetBasis( const Basis &); // set new Tableau
-  void Solve(const Vector<Rational> &b, Vector<Rational> &x) override;  // solve M x = b
-  void SolveT(const Vector<Rational> &c, Vector<Rational> &y) override;  // solve y M = c
-  
-  bool IsFeasible();
-  bool IsLexMin();
-  void BasisVector(Vector<Rational> &out) const override;
-  Integer TotDenom() const;
-};
-
 }  // end namespace Gambit::linalg
 
 }  // end namespace Gambit

@@ -21,9 +21,6 @@
 //
 
 #include "core/sqmatrix.imp"
-#include "rational.h"
 
 template class Gambit::SquareMatrix<double>;
-template class Gambit::SquareMatrix<Gambit::Rational>;
-
 

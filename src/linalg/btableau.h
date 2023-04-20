@@ -33,8 +33,6 @@ namespace linalg  {
 inline void epsilon(double &v, int i = 8)
 { v = std::pow(10.0, (double) -i); }
 
-inline void epsilon(Rational &v, int /*i*/ = 8)
-{ v = Rational(0); }
 
 
 template <class T> class BaseTableau {
