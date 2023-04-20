@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "gambit.h"
 #include "solvers/linalg/vertenum.imp"
-#include "solvers/enummixed/enummixed.h"
+// #include "solvers/enummixed/enummixed.h"
 // #include "solvers/enummixed/clique.h"
 
 class Matrix1D
