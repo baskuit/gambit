@@ -62,7 +62,7 @@ namespace Gambit
       int Enter();
       int Exit(int);
 
-      static Array<int> Artificials(const Vector<T> &);
+      Array<int> Artificials(const Vector<T> &);
 
     public:
       LPSolve(const Matrix<T> &A, const Vector<T> &B, const Vector<T> &C,
