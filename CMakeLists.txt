@@ -14,11 +14,8 @@ set(GAMBIT_SOURCES
 
 )
 
-include_directories(
-	src
-)
+add_library(gambit STATIC ${GAMBIT_SOURCES})
+target_include_directories(gambit PUBLIC src)
 
-add_library(gambit SHARED ${GAMBIT_SOURCES})
-
-add_executable(main main.cc)
-target_link_libraries(main gambit)
+# add_executable(main main.cc)
+# target_link_libraries(main gambit)
