@@ -59,6 +59,6 @@ include_directories(
 	src/lrs
 )
 
-add_library(gambit SHARED ${GAMBIT_SOURCES})
-add_executable(enummixed src/tools/enummixed/enummixed.cc)
-target_link_libraries(enummixed gambit)
+add_library(gambit STATIC ${GAMBIT_SOURCES})
+# add_executable(enummixed src/tools/enummixed/enummixed.cc)
+# target_link_libraries(enummixed gambit)
